@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\RTSProject.uproject" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{2763793C-E88A-4CE0-AC56-246421596BCB}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\RTSProject.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\RTSProjectEditor.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <Filter Include="Config">
+      <UniqueIdentifier>{06463925-8365-445C-A434-4F13F620DE99}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\DefaultEditor.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEngine.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGame.ini">
+      <Filter>Config</Filter>
+    </None>
+    <Filter Include="Source\RTSProject">
+      <UniqueIdentifier>{471C030D-4F0C-4A97-99D8-2819BA8065CC}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\RTSProject\RTSProject.Build.cs">
+      <Filter>Source\RTSProject</Filter>
+    </None>
+    <ClCompile Include="..\..\Source\RTSProject\RTSProject.cpp">
+      <Filter>Source\RTSProject</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\RTSProject\RTSProject.h">
+      <Filter>Source\RTSProject</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\RTSProject\RTSProjectGameModeBase.cpp">
+      <Filter>Source\RTSProject</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\RTSProject\RTSProjectGameModeBase.h">
+      <Filter>Source\RTSProject</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source\RTSProject\Public">
+      <UniqueIdentifier>{8b32c9ea-e190-4244-8841-b7d37e976ac2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\RTSProject\Private">
+      <UniqueIdentifier>{93f1f81c-f46c-44d0-90ff-b46b5777ea3a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\RTSProject\Public\Unit.h">
+      <Filter>Source\RTSProject\Public</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Source\RTSProject\Private\Unit.cpp">
+      <Filter>Source\RTSProject\Private</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

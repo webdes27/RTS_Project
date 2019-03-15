@@ -1,0 +1,4 @@
+﻿  Creating makefile for hot reloading RTSProjectEditor (modules to compile have changed)
+  Compiling game modules for hot reload
+  Using Visual Studio 2017 14.16.27023 toolchain (C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023) and Windows 10.0.17763.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.MakeFile.Targets(44,5): warning MSB5021: Terminating the task executable "cmd" and its child processes because the build was canceled.
