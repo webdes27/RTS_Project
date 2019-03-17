@@ -54,9 +54,15 @@
     <ClInclude Include="..\..\Source\RTSProject\Public\Unit.h">
       <Filter>Source\RTSProject\Public</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\RTSProject\Public\UnitAIController.h">
+      <Filter>Source\RTSProject\Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\RTSProject\Private\Unit.cpp">
+      <Filter>Source\RTSProject\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\RTSProject\Private\UnitAIController.cpp">
       <Filter>Source\RTSProject\Private</Filter>
     </ClCompile>
   </ItemGroup>

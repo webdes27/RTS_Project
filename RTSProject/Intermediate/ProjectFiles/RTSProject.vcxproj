@@ -418,8 +418,10 @@
     <None Include="..\..\Config\DefaultGame.ini" />
     <None Include="..\..\Source\RTSProject\RTSProject.Build.cs" />
     <ClCompile Include="..\..\Source\RTSProject\Private\Unit.cpp" />
+    <ClCompile Include="..\..\Source\RTSProject\Private\UnitAIController.cpp" />
     <ClCompile Include="..\..\Source\RTSProject\RTSProject.cpp" />
     <ClInclude Include="..\..\Source\RTSProject\Public\Unit.h" />
+    <ClInclude Include="..\..\Source\RTSProject\Public\UnitAIController.h" />
     <ClInclude Include="..\..\Source\RTSProject\RTSProject.h" />
     <ClCompile Include="..\..\Source\RTSProject\RTSProjectGameModeBase.cpp" />
     <ClInclude Include="..\..\Source\RTSProject\RTSProjectGameModeBase.h" />

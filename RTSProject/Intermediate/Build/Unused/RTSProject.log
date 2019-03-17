@@ -1,4 +1,11 @@
-﻿  Creating makefile for hot reloading RTSProjectEditor (modules to compile have changed)
-  Compiling game modules for hot reload
-  Using Visual Studio 2017 14.16.27023 toolchain (C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023) and Windows 10.0.17763.0 SDK (C:\Program Files (x86)\Windows Kits\10).
-C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.MakeFile.Targets(44,5): warning MSB5021: Terminating the task executable "cmd" and its child processes because the build was canceled.
+﻿  Using 'git status' to determine working set for adaptive non-unity build.
+  Building 3 actions with 4 processes...
+    Unit.cpp
+c:\users\derek\desktop\game_dev\rts_project\rtsproject\source\rtsproject\public\UnitAIController.h(17): warning C4996: 'AAIController::OnMoveCompleted': This function is now deprecated, please use version with EPathFollowingResultDetails parameter. Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+    C:\Program Files\Epic Games\UE_4.20\Engine\Source\Runtime\AIModule\Classes\AIController.h(231): note: see declaration of 'AAIController::OnMoveCompleted'
+    UE4Editor-RTSProject.lib
+       Creating library C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Intermediate\Build\Win64\UE4Editor\Development\RTSProject\UE4Editor-RTSProject.lib and object C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Intermediate\Build\Win64\UE4Editor\Development\RTSProject\UE4Editor-RTSProject.exp
+    UE4Editor-RTSProject.dll
+       Creating library C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Intermediate\Build\Win64\UE4Editor\Development\RTSProject\UE4Editor-RTSProject.suppressed.lib and object C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Intermediate\Build\Win64\UE4Editor\Development\RTSProject\UE4Editor-RTSProject.suppressed.exp
+  Deploying RTSProjectEditor Win64 Development...
+  Total build time: 14,26 seconds (Parallel executor: 12,62 seconds)

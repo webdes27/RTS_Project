@@ -19,8 +19,8 @@ void EmptyLinkFunctionForGeneratedCodeRTSProject_init() {}
 			static const UE4CodeGen_Private::FPackageParams PackageParams = {
 				"/Script/RTSProject",
 				PKG_CompiledIn | 0x00000000,
-				0xA02A9F5A,
-				0xD88F8CAA,
+				0xD469A8E9,
+				0x24729021,
 				nullptr, 0,
 				METADATA_PARAMS(nullptr, 0)
 			};

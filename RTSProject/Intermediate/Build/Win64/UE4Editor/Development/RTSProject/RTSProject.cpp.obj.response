@@ -24,7 +24,7 @@
 /wd4838
 /we4668
 /I .
-/I C:\Users\derek\Desktop\GAME_DEV\RTSProject\Source\RTSProject\Private
+/I C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Source\RTSProject\Private
 /I ..\Intermediate\Build\Win64\UE4Editor\Inc\Engine
 /I Runtime
 /I Runtime\Engine\Classes
@@ -402,21 +402,21 @@
 /I ThirdParty
 /I ThirdParty\libSampleRate\Public
 /I ThirdParty\libSampleRate
-/I C:\Users\derek\Desktop\GAME_DEV\RTSProject\Intermediate\Build\Win64\UE4Editor\Inc\RTSProject
-/I C:\Users\derek\Desktop\GAME_DEV\RTSProject\Source
-/I C:\Users\derek\Desktop\GAME_DEV\RTSProject\Source\RTSProject\Public
-/I C:\Users\derek\Desktop\GAME_DEV\RTSProject\Source\RTSProject
+/I C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Intermediate\Build\Win64\UE4Editor\Inc\RTSProject
+/I C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Source
+/I C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Source\RTSProject\Public
+/I C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Source\RTSProject
 /I "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"
-/FI"C:\Users\derek\Desktop\GAME_DEV\RTSProject\Intermediate\Build\Win64\RTSProjectEditor\Development\Engine\SharedPCH.Engine.h"
-/Yu"C:\Users\derek\Desktop\GAME_DEV\RTSProject\Intermediate\Build\Win64\RTSProjectEditor\Development\Engine\SharedPCH.Engine.h"
-/Fp"C:\Users\derek\Desktop\GAME_DEV\RTSProject\Intermediate\Build\Win64\RTSProjectEditor\Development\Engine\SharedPCH.Engine.h.pch"
-"C:\Users\derek\Desktop\GAME_DEV\RTSProject\Source\RTSProject\RTSProject.cpp"
-/FI"C:\Users\derek\Desktop\GAME_DEV\RTSProject\Intermediate\Build\Win64\UE4Editor\Development\RTSProject\Definitions.RTSProject.h"
-/Fo"C:\Users\derek\Desktop\GAME_DEV\RTSProject\Intermediate\Build\Win64\UE4Editor\Development\RTSProject\RTSProject.cpp.obj"
+/FI"C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Intermediate\Build\Win64\RTSProjectEditor\Development\Engine\SharedPCH.Engine.h"
+/Yu"C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Intermediate\Build\Win64\RTSProjectEditor\Development\Engine\SharedPCH.Engine.h"
+/Fp"C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Intermediate\Build\Win64\RTSProjectEditor\Development\Engine\SharedPCH.Engine.h.pch"
+"C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Source\RTSProject\RTSProject.cpp"
+/FI"C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Intermediate\Build\Win64\UE4Editor\Development\RTSProject\Definitions.RTSProject.h"
+/Fo"C:\Users\derek\Desktop\GAME_DEV\RTS_Project\RTSProject\Intermediate\Build\Win64\UE4Editor\Development\RTSProject\RTSProject.cpp.obj"
 /TP
 /GR-
 /W4

@@ -18,6 +18,9 @@ void EmptyLinkFunctionForGeneratedCodeUnit() {}
 	ENGINE_API UClass* Z_Construct_UClass_ACharacter();
 	UPackage* Z_Construct_UPackage__Script_RTSProject();
 	RTSPROJECT_API UFunction* Z_Construct_UFunction_AUnit_GetTarget();
+	ENGINE_API UClass* Z_Construct_UClass_UParticleSystemComponent_NoRegister();
+	ENGINE_API UClass* Z_Construct_UClass_UStaticMeshComponent_NoRegister();
+	ENGINE_API UClass* Z_Construct_UClass_USphereComponent_NoRegister();
 	ENGINE_API UClass* Z_Construct_UClass_AActor_NoRegister();
 // End Cross Module References
 	void AUnit::StaticRegisterNativesAUnit()
@@ -62,6 +65,26 @@ void EmptyLinkFunctionForGeneratedCodeUnit() {}
 		static const UE4CodeGen_Private::FMetaDataPairParam Class_MetaDataParams[];
 #endif
 #if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam NewProp_laserDuration_MetaData[];
+#endif
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_laserDuration;
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam NewProp_fireRate_MetaData[];
+#endif
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_fireRate;
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam NewProp_laserBeam_MetaData[];
+#endif
+		static const UE4CodeGen_Private::FObjectPropertyParams NewProp_laserBeam;
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam NewProp_unitMesh_MetaData[];
+#endif
+		static const UE4CodeGen_Private::FObjectPropertyParams NewProp_unitMesh;
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam NewProp_unitSphere_MetaData[];
+#endif
+		static const UE4CodeGen_Private::FObjectPropertyParams NewProp_unitSphere;
+#if WITH_METADATA
 		static const UE4CodeGen_Private::FMetaDataPairParam NewProp_target_MetaData[];
 #endif
 		static const UE4CodeGen_Private::FObjectPropertyParams NewProp_target;
@@ -84,6 +107,44 @@ void EmptyLinkFunctionForGeneratedCodeUnit() {}
 	};
 #endif
 #if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_AUnit_Statics::NewProp_laserDuration_MetaData[] = {
+		{ "Category", "Unit" },
+		{ "ModuleRelativePath", "Public/Unit.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UClass_AUnit_Statics::NewProp_laserDuration = { UE4CodeGen_Private::EPropertyClass::Float, "laserDuration", RF_Public|RF_Transient|RF_MarkAsNative, (EPropertyFlags)0x0010000000000005, 1, nullptr, STRUCT_OFFSET(AUnit, laserDuration), METADATA_PARAMS(Z_Construct_UClass_AUnit_Statics::NewProp_laserDuration_MetaData, ARRAY_COUNT(Z_Construct_UClass_AUnit_Statics::NewProp_laserDuration_MetaData)) };
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_AUnit_Statics::NewProp_fireRate_MetaData[] = {
+		{ "Category", "Unit" },
+		{ "ModuleRelativePath", "Public/Unit.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UClass_AUnit_Statics::NewProp_fireRate = { UE4CodeGen_Private::EPropertyClass::Float, "fireRate", RF_Public|RF_Transient|RF_MarkAsNative, (EPropertyFlags)0x0010000000000005, 1, nullptr, STRUCT_OFFSET(AUnit, fireRate), METADATA_PARAMS(Z_Construct_UClass_AUnit_Statics::NewProp_fireRate_MetaData, ARRAY_COUNT(Z_Construct_UClass_AUnit_Statics::NewProp_fireRate_MetaData)) };
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_AUnit_Statics::NewProp_laserBeam_MetaData[] = {
+		{ "Category", "Unit" },
+		{ "EditInline", "true" },
+		{ "ModuleRelativePath", "Public/Unit.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FObjectPropertyParams Z_Construct_UClass_AUnit_Statics::NewProp_laserBeam = { UE4CodeGen_Private::EPropertyClass::Object, "laserBeam", RF_Public|RF_Transient|RF_MarkAsNative, (EPropertyFlags)0x00100000000a001d, 1, nullptr, STRUCT_OFFSET(AUnit, laserBeam), Z_Construct_UClass_UParticleSystemComponent_NoRegister, METADATA_PARAMS(Z_Construct_UClass_AUnit_Statics::NewProp_laserBeam_MetaData, ARRAY_COUNT(Z_Construct_UClass_AUnit_Statics::NewProp_laserBeam_MetaData)) };
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_AUnit_Statics::NewProp_unitMesh_MetaData[] = {
+		{ "Category", "Unit" },
+		{ "EditInline", "true" },
+		{ "ModuleRelativePath", "Public/Unit.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FObjectPropertyParams Z_Construct_UClass_AUnit_Statics::NewProp_unitMesh = { UE4CodeGen_Private::EPropertyClass::Object, "unitMesh", RF_Public|RF_Transient|RF_MarkAsNative, (EPropertyFlags)0x00100000000a001d, 1, nullptr, STRUCT_OFFSET(AUnit, unitMesh), Z_Construct_UClass_UStaticMeshComponent_NoRegister, METADATA_PARAMS(Z_Construct_UClass_AUnit_Statics::NewProp_unitMesh_MetaData, ARRAY_COUNT(Z_Construct_UClass_AUnit_Statics::NewProp_unitMesh_MetaData)) };
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_AUnit_Statics::NewProp_unitSphere_MetaData[] = {
+		{ "Category", "Unit" },
+		{ "EditInline", "true" },
+		{ "ModuleRelativePath", "Public/Unit.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FObjectPropertyParams Z_Construct_UClass_AUnit_Statics::NewProp_unitSphere = { UE4CodeGen_Private::EPropertyClass::Object, "unitSphere", RF_Public|RF_Transient|RF_MarkAsNative, (EPropertyFlags)0x00100000000a001d, 1, nullptr, STRUCT_OFFSET(AUnit, unitSphere), Z_Construct_UClass_USphereComponent_NoRegister, METADATA_PARAMS(Z_Construct_UClass_AUnit_Statics::NewProp_unitSphere_MetaData, ARRAY_COUNT(Z_Construct_UClass_AUnit_Statics::NewProp_unitSphere_MetaData)) };
+#if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_AUnit_Statics::NewProp_target_MetaData[] = {
 		{ "Category", "Unit" },
 		{ "ModuleRelativePath", "Public/Unit.h" },
@@ -91,6 +152,11 @@ void EmptyLinkFunctionForGeneratedCodeUnit() {}
 #endif
 	const UE4CodeGen_Private::FObjectPropertyParams Z_Construct_UClass_AUnit_Statics::NewProp_target = { UE4CodeGen_Private::EPropertyClass::Object, "target", RF_Public|RF_Transient|RF_MarkAsNative, (EPropertyFlags)0x0010000000020005, 1, nullptr, STRUCT_OFFSET(AUnit, target), Z_Construct_UClass_AActor_NoRegister, METADATA_PARAMS(Z_Construct_UClass_AUnit_Statics::NewProp_target_MetaData, ARRAY_COUNT(Z_Construct_UClass_AUnit_Statics::NewProp_target_MetaData)) };
 	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UClass_AUnit_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AUnit_Statics::NewProp_laserDuration,
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AUnit_Statics::NewProp_fireRate,
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AUnit_Statics::NewProp_laserBeam,
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AUnit_Statics::NewProp_unitMesh,
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AUnit_Statics::NewProp_unitSphere,
 		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AUnit_Statics::NewProp_target,
 	};
 	const FCppClassTypeInfoStatic Z_Construct_UClass_AUnit_Statics::StaticCppClassTypeInfo = {
@@ -116,7 +182,7 @@ void EmptyLinkFunctionForGeneratedCodeUnit() {}
 		}
 		return OuterClass;
 	}
-	IMPLEMENT_CLASS(AUnit, 597815202);
+	IMPLEMENT_CLASS(AUnit, 87687054);
 	static FCompiledInDefer Z_CompiledInDefer_UClass_AUnit(Z_Construct_UClass_AUnit, &AUnit::StaticClass, TEXT("/Script/RTSProject"), TEXT("AUnit"), false, nullptr, nullptr, nullptr);
 	DEFINE_VTABLE_PTR_HELPER_CTOR(AUnit);
 PRAGMA_ENABLE_DEPRECATION_WARNINGS

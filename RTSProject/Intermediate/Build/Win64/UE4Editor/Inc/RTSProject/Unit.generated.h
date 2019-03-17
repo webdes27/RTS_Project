@@ -13,7 +13,7 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 #endif
 #define RTSPROJECT_Unit_generated_h
 
-#define RTSProject_Source_RTSProject_Public_Unit_h_14_RPC_WRAPPERS \
+#define RTSProject_Source_RTSProject_Public_Unit_h_16_RPC_WRAPPERS \
  \
 	DECLARE_FUNCTION(execGetTarget) \
 	{ \
@@ -24,7 +24,7 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 	}
 
 
-#define RTSProject_Source_RTSProject_Public_Unit_h_14_RPC_WRAPPERS_NO_PURE_DECLS \
+#define RTSProject_Source_RTSProject_Public_Unit_h_16_RPC_WRAPPERS_NO_PURE_DECLS \
  \
 	DECLARE_FUNCTION(execGetTarget) \
 	{ \
@@ -35,7 +35,7 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 	}
 
 
-#define RTSProject_Source_RTSProject_Public_Unit_h_14_INCLASS_NO_PURE_DECLS \
+#define RTSProject_Source_RTSProject_Public_Unit_h_16_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesAUnit(); \
 	friend struct Z_Construct_UClass_AUnit_Statics; \
@@ -44,7 +44,7 @@ public: \
 	DECLARE_SERIALIZER(AUnit)
 
 
-#define RTSProject_Source_RTSProject_Public_Unit_h_14_INCLASS \
+#define RTSProject_Source_RTSProject_Public_Unit_h_16_INCLASS \
 private: \
 	static void StaticRegisterNativesAUnit(); \
 	friend struct Z_Construct_UClass_AUnit_Statics; \
@@ -53,7 +53,7 @@ public: \
 	DECLARE_SERIALIZER(AUnit)
 
 
-#define RTSProject_Source_RTSProject_Public_Unit_h_14_STANDARD_CONSTRUCTORS \
+#define RTSProject_Source_RTSProject_Public_Unit_h_16_STANDARD_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API AUnit(const FObjectInitializer& ObjectInitializer); \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(AUnit) \
@@ -66,7 +66,7 @@ private: \
 public:
 
 
-#define RTSProject_Source_RTSProject_Public_Unit_h_14_ENHANCED_CONSTRUCTORS \
+#define RTSProject_Source_RTSProject_Public_Unit_h_16_ENHANCED_CONSTRUCTORS \
 private: \
 	/** Private move- and copy-constructors, should never be used */ \
 	NO_API AUnit(AUnit&&); \
@@ -77,26 +77,26 @@ DEFINE_VTABLE_PTR_HELPER_CTOR_CALLER(AUnit); \
 	DEFINE_DEFAULT_CONSTRUCTOR_CALL(AUnit)
 
 
-#define RTSProject_Source_RTSProject_Public_Unit_h_14_PRIVATE_PROPERTY_OFFSET
-#define RTSProject_Source_RTSProject_Public_Unit_h_11_PROLOG
-#define RTSProject_Source_RTSProject_Public_Unit_h_14_GENERATED_BODY_LEGACY \
+#define RTSProject_Source_RTSProject_Public_Unit_h_16_PRIVATE_PROPERTY_OFFSET
+#define RTSProject_Source_RTSProject_Public_Unit_h_13_PROLOG
+#define RTSProject_Source_RTSProject_Public_Unit_h_16_GENERATED_BODY_LEGACY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	RTSProject_Source_RTSProject_Public_Unit_h_14_PRIVATE_PROPERTY_OFFSET \
-	RTSProject_Source_RTSProject_Public_Unit_h_14_RPC_WRAPPERS \
-	RTSProject_Source_RTSProject_Public_Unit_h_14_INCLASS \
-	RTSProject_Source_RTSProject_Public_Unit_h_14_STANDARD_CONSTRUCTORS \
+	RTSProject_Source_RTSProject_Public_Unit_h_16_PRIVATE_PROPERTY_OFFSET \
+	RTSProject_Source_RTSProject_Public_Unit_h_16_RPC_WRAPPERS \
+	RTSProject_Source_RTSProject_Public_Unit_h_16_INCLASS \
+	RTSProject_Source_RTSProject_Public_Unit_h_16_STANDARD_CONSTRUCTORS \
 public: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 
-#define RTSProject_Source_RTSProject_Public_Unit_h_14_GENERATED_BODY \
+#define RTSProject_Source_RTSProject_Public_Unit_h_16_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	RTSProject_Source_RTSProject_Public_Unit_h_14_PRIVATE_PROPERTY_OFFSET \
-	RTSProject_Source_RTSProject_Public_Unit_h_14_RPC_WRAPPERS_NO_PURE_DECLS \
-	RTSProject_Source_RTSProject_Public_Unit_h_14_INCLASS_NO_PURE_DECLS \
-	RTSProject_Source_RTSProject_Public_Unit_h_14_ENHANCED_CONSTRUCTORS \
+	RTSProject_Source_RTSProject_Public_Unit_h_16_PRIVATE_PROPERTY_OFFSET \
+	RTSProject_Source_RTSProject_Public_Unit_h_16_RPC_WRAPPERS_NO_PURE_DECLS \
+	RTSProject_Source_RTSProject_Public_Unit_h_16_INCLASS_NO_PURE_DECLS \
+	RTSProject_Source_RTSProject_Public_Unit_h_16_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
