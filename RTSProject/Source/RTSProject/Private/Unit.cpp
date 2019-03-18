@@ -35,18 +35,12 @@ void AUnit::BeginPlay()
 	
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetPoint::StaticClass(), FoundActors);
 
-	for (AActor* actor : FoundActors)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Found target point %s"), *actor->GetName()));
-	}
-
 	SpawnDefaultController();
 
 	GetTarget();
 
-	bUseControllerRotationYaw = false; //Smooth rotation
-
-	
+	bUseControllerRotationYaw = false; //Smooth rotation		
+			
 }
 // Called every frame
 void AUnit::Tick(float DeltaTime)
@@ -97,6 +91,17 @@ void AUnit::Tick(float DeltaTime)
 	
 }
 
+void AUnit::Init(int team)
+{
+	unitTeam = team;
+
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, FString::Printf(TEXT("New Unit %s"), *FString::FromInt(unitTeam)));
+
+	if (unitTeam == 0)
+		unitMesh->SetMaterial(0, redUnitMaterial);
+	else
+		unitMesh->SetMaterial(0, blueUnitMaterial);
+}
 void AUnit::GetTarget()
 {
 	target = FoundActors[rand() % FoundActors.Num()];
@@ -110,13 +115,21 @@ void AUnit::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AUnit::NotifyActorBeginOverlap(AActor* Other)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("%s targets %s"),*GetName(), *Other->GetName()));
-	atRangeTargets.insert(Other);
+	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("%s targets %s"),*GetName(), *Other->GetName()));
+	AUnit* otherUnit = (AUnit*)Other;
+	if (otherUnit && otherUnit->unitTeam != unitTeam)
+	{
+		atRangeTargets.insert(Other);		
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Cast failed")));
+	}
 }
 
 void AUnit::NotifyActorEndOverlap(AActor* Other)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("%s no longer targets %s"), *GetName(), *Other->GetName()));
+	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("%s no longer targets %s"), *GetName(), *Other->GetName()));
 	atRangeTargets.erase(Other);
 }
 
@@ -126,7 +139,7 @@ void AUnit::Idle()
 	{
 		AActor* t = *atRangeTargets.begin();
 		fireTarget = t->GetActorLocation();
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Shoot to %s"), *t->GetName()));
+		//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Shoot to %s"), *t->GetName()));
 		state = UnitState::AIMING;
 	}
 	else
@@ -147,8 +160,7 @@ void AUnit::Moving()
 {
 	if (unitAIController->arrived || Controller->GetPawn()->GetVelocity().Size() < 10)
 	{
-		state = UnitState::IDLE;
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Arrived")));
+		state = UnitState::IDLE;		
 	}
 	Idle();
 }
@@ -160,8 +172,7 @@ void AUnit::Aiming()
 	newRot = q.Rotator();
 	SetActorRotation(q.Rotator());
 
-	float angDist = q.AngularDistance(GetActorRotation().Quaternion());
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Ang %s"), *FString::SanitizeFloat(angDist)));
+	float angDist = q.AngularDistance(GetActorRotation().Quaternion());	
 	if (angDist < .01f)
 	{
 		state = UnitState::SHOOTING;

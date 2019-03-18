@@ -23,6 +23,12 @@ class RTSPROJECT_API AUnit : public ACharacter
 		SHOOTING
 	};
 
+	enum Teams
+	{
+		RED,
+		BLUE
+	};
+
 public:
 	// Sets default values for this character's properties
 	AUnit();
@@ -32,6 +38,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USphereComponent* unitSphere;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
+	UMaterial* blueUnitMaterial;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
+	UMaterial* redUnitMaterial;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* unitMesh;
@@ -48,11 +60,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetTarget();
 
-	TArray<AActor*> FoundActors;
-	
-	AUnitAIController* unitAIController = nullptr;
+	void Init(int team);
 
-	UnitState state = UnitState::IDLE;
+	TArray<AActor*>			FoundActors;
+	AUnitAIController*		unitAIController = nullptr;
+	UnitState				state = UnitState::IDLE;
+	int						unitTeam = 0;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
