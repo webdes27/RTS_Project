@@ -73,18 +73,16 @@ protected:
 
 private:
 
-	virtual void NotifyActorBeginOverlap(AActor* Other) override;
-	virtual void NotifyActorEndOverlap(AActor* Other) override;
-
 	void Idle();
 	void Moving();
 	void Aiming();
 	void Shooting();
+	void CheckTargets();
 
-	std::unordered_set<AActor*> atRangeTargets;
-	FVector fireTarget;
-	float fireTimer = .0f;
-	float laserTimer = .0f;
+	FVector				fireTarget;
+	float				fireTimer = .0f;
+	float				laserTimer = .0f;
+	bool				bHasTarget = false;
 
 public:	
 	// Called every frame

@@ -40,13 +40,15 @@ void AUnit::BeginPlay()
 	GetTarget();
 
 	bUseControllerRotationYaw = false; //Smooth rotation		
-			
+		
+	//overlapDelegate.BindRaw(&AUnit::OnOverlapCompleted);
 }
 // Called every frame
 void AUnit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);	
 
+	CheckTargets();
 	//GEngine->AddOnScreenDebugMessage(-1, 0.2f, FColor::Yellow, FString::Printf(TEXT("DT %s"), *FString::SanitizeFloat(DeltaTime)));
 
 	switch (state)
@@ -95,8 +97,6 @@ void AUnit::Init(int team)
 {
 	unitTeam = team;
 
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, FString::Printf(TEXT("New Unit %s"), *FString::FromInt(unitTeam)));
-
 	if (unitTeam == 0)
 		unitMesh->SetMaterial(0, redUnitMaterial);
 	else
@@ -113,45 +113,32 @@ void AUnit::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
-void AUnit::NotifyActorBeginOverlap(AActor* Other)
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("%s targets %s"),*GetName(), *Other->GetName()));
-	AUnit* otherUnit = (AUnit*)Other;
-	if (otherUnit && otherUnit->unitTeam != unitTeam)
-	{
-		atRangeTargets.insert(Other);		
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Cast failed")));
-	}
-}
-
-void AUnit::NotifyActorEndOverlap(AActor* Other)
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("%s no longer targets %s"), *GetName(), *Other->GetName()));
-	atRangeTargets.erase(Other);
-}
-
 void AUnit::Idle()
 {
-	if (atRangeTargets.size() > 0 && fireTimer <= 0.f)
+	if (bHasTarget && fireTimer <= 0.f)
 	{
-		AActor* t = *atRangeTargets.begin();
-		fireTarget = t->GetActorLocation();
-		//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Shoot to %s"), *t->GetName()));
 		state = UnitState::AIMING;
 	}
 	else
 	{
-		GetTarget();
-		AController* controller = GetController();
-		unitAIController = Cast<AUnitAIController>(controller);
-		if (unitAIController != nullptr)
+		if (!bHasTarget)
 		{
-			unitAIController->MoveToActor(target);
-			unitAIController->arrived = false;
-			state = UnitState::MOVING;
+			GetTarget(); //TODO:Rename this to avoid confusion with shoot target
+			AController* controller = GetController();
+			unitAIController = Cast<AUnitAIController>(controller);
+			if (unitAIController != nullptr)
+			{
+				unitAIController->MoveToActor(target);
+				unitAIController->arrived = false;
+				state = UnitState::MOVING;
+			}
+		}
+		else
+		{
+			if (unitAIController != nullptr)
+			{
+				unitAIController->StopMovement();
+			}
 		}
 	}
 }
@@ -193,3 +180,42 @@ void AUnit::Shooting()
 	laserTimer = laserDuration;
 	state = UnitState::IDLE;
 }
+
+void AUnit::CheckTargets()
+{
+	FCollisionQueryParams query;
+	query.AddIgnoredActor(this);
+	auto sphere = FCollisionShape::MakeSphere(unitSphere->GetScaledSphereRadius());
+	FVector start = GetActorLocation();
+	auto traceType = EAsyncTraceType::Multi;
+	FCollisionResponseParams params;
+	TArray<FOverlapResult> overlaps;
+	GetWorld()->OverlapMultiByChannel
+	(
+		overlaps,
+		start,
+		FQuat::Identity,
+		ECollisionChannel::ECC_WorldDynamic,
+		sphere,
+		query,
+		params
+	);
+
+	bHasTarget = false;
+
+	for (FOverlapResult r : overlaps)
+	{
+		if (r.Actor != this && r.Actor->IsA(AUnit::StaticClass()))
+		{
+			AUnit* unit = (AUnit*)r.Actor.Get();
+			if (unit && unit->unitTeam != unitTeam)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, FString::Printf(TEXT("Target %s"), *unit->GetName()));
+				fireTarget = unit->GetActorLocation();
+				bHasTarget = true;
+			}
+			break;
+		}
+	}
+}
+
