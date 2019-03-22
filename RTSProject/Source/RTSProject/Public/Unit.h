@@ -20,7 +20,8 @@ class RTSPROJECT_API AUnit : public ACharacter
 		IDLE,
 		MOVING,
 		AIMING,
-		SHOOTING
+		SHOOTING,
+		DEAD
 	};
 
 	enum Teams
@@ -35,6 +36,9 @@ public:
 
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
 	AActor* target = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USceneComponent* laserPoint;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USphereComponent* unitSphere;
@@ -82,6 +86,8 @@ private:
 	FVector				fireTarget;
 	float				fireTimer = .0f;
 	float				laserTimer = .0f;
+	int					damage = 10;
+	int					life = 30;
 	bool				bHasTarget = false;
 
 public:	

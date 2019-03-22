@@ -19,6 +19,9 @@ AUnit::AUnit()
 	unitMesh = CreateDefaultSubobject<UStaticMeshComponent>("UnitMesh");
 	unitMesh->SetupAttachment(RootComponent);
 
+	laserPoint = CreateDefaultSubobject<USceneComponent>("laserPoint");
+	laserPoint->SetupAttachment(unitMesh);
+
 	unitSphere = CreateDefaultSubobject<USphereComponent>("UnitSphere");
 	unitSphere->SetupAttachment(RootComponent);
 
@@ -47,6 +50,12 @@ void AUnit::BeginPlay()
 void AUnit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);	
+
+	if (life <= 0)
+	{
+		Destroy();
+		state = UnitState::DEAD;
+	}
 
 	CheckTargets();
 	//GEngine->AddOnScreenDebugMessage(-1, 0.2f, FColor::Yellow, FString::Printf(TEXT("DT %s"), *FString::SanitizeFloat(DeltaTime)));
@@ -98,9 +107,16 @@ void AUnit::Init(int team)
 	unitTeam = team;
 
 	if (unitTeam == 0)
+	{
 		unitMesh->SetMaterial(0, redUnitMaterial);
+		laserBeam->SetMaterial(0, redUnitMaterial);
+	}
 	else
+	{
 		unitMesh->SetMaterial(0, blueUnitMaterial);
+		laserBeam->SetMaterial(0, blueUnitMaterial);
+
+	}
 }
 void AUnit::GetTarget()
 {
@@ -173,12 +189,47 @@ void AUnit::Aiming()
 
 void AUnit::Shooting()
 {
-	laserBeam->ActivateSystem(true);
-	laserBeam->SetBeamSourcePoint(0, GetActorLocation(), 0);
-	laserBeam->SetBeamTargetPoint(0, fireTarget, 0);
-	fireTimer = fireRate;
-	laserTimer = laserDuration;
-	state = UnitState::IDLE;
+	FHitResult OutHit;
+	FVector ForwardVector = GetActorForwardVector();
+	FVector Start = laserPoint->GetComponentLocation();;
+	FVector End = ((ForwardVector * 1000.f) + Start);
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
+
+	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+
+	if(GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams)) 
+	{
+		laserBeam->ActivateSystem(true);
+		laserBeam->SetBeamSourcePoint(0, Start, 0);
+		if(OutHit.bBlockingHit)
+		{
+			laserBeam->SetBeamTargetPoint(0, OutHit.ImpactPoint, 0);
+			if (OutHit.Actor->IsA(AUnit::StaticClass()))
+			{
+				AUnit* unit = (AUnit*)OutHit.Actor.Get();				
+				unit->life -= damage;
+				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, FString::Printf(TEXT("%s : Target %s life %s"), *GetName(), *unit->GetName(), *FString::FromInt(unit->life)));
+			}
+			if (unitTeam == 0)
+				DrawDebugLine(GetWorld(), Start, OutHit.ImpactPoint, FColor::Red, false, 0.1f, 0, 1);
+			else
+				DrawDebugLine(GetWorld(), Start, OutHit.ImpactPoint, FColor::Blue, false, 0.1f, 0, 1);
+		}
+		else
+		{
+			laserBeam->SetBeamTargetPoint(0, End, 0);
+			if (unitTeam == 0)
+				DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.1f, 0, 1);
+			else
+				DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 0.1f, 0, 1);
+		}
+		fireTimer = fireRate;
+		laserTimer = laserDuration;
+		state = UnitState::IDLE;
+
+	}	
+	
 }
 
 void AUnit::CheckTargets()
@@ -209,8 +260,7 @@ void AUnit::CheckTargets()
 		{
 			AUnit* unit = (AUnit*)r.Actor.Get();
 			if (unit && unit->unitTeam != unitTeam)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, FString::Printf(TEXT("Target %s"), *unit->GetName()));
+			{				
 				fireTarget = unit->GetActorLocation();
 				bHasTarget = true;
 			}
