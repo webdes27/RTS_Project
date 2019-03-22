@@ -6,18 +6,18 @@
 #include "AIController.h"
 #include "UnitAIController.generated.h"
 
-/**
- * 
- */
+class AUnit;
+
 UCLASS()
 class RTSPROJECT_API AUnitAIController : public AAIController
 {
 	GENERATED_BODY()
 
+	AUnitAIController();
 	void OnMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result) override;
 	
 public:
 
-	bool arrived = false;
+	AUnit*			owner = nullptr;
 	
 };

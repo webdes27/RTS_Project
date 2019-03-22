@@ -22,13 +22,15 @@ AUnit::AUnit()
 	laserPoint = CreateDefaultSubobject<USceneComponent>("laserPoint");
 	laserPoint->SetupAttachment(unitMesh);
 
+	stateText = CreateDefaultSubobject<UTextRenderComponent>("stateText");
+	stateText->SetupAttachment(unitMesh);
+
 	unitSphere = CreateDefaultSubobject<USphereComponent>("UnitSphere");
 	unitSphere->SetupAttachment(RootComponent);
 
 	AIControllerClass = AUnitAIController::StaticClass();
 	AController* controller = GetController();
-	unitAIController = Cast<AUnitAIController>(controller);	
-	int x = 0;
+	unitAIController = Cast<AUnitAIController>(controller);
 }
 
 // Called when the game starts or when spawned
@@ -42,9 +44,9 @@ void AUnit::BeginPlay()
 
 	GetTarget();
 
-	bUseControllerRotationYaw = false; //Smooth rotation		
-		
-	//overlapDelegate.BindRaw(&AUnit::OnOverlapCompleted);
+	bUseControllerRotationYaw = false; //Smooth rotation	
+	GetCharacterMovement()->bUseRVOAvoidance = true;
+
 }
 // Called every frame
 void AUnit::Tick(float DeltaTime)
@@ -58,32 +60,37 @@ void AUnit::Tick(float DeltaTime)
 	}
 
 	CheckTargets();
+	if (!bHasTarget)
+		CheckArrived();
 	//GEngine->AddOnScreenDebugMessage(-1, 0.2f, FColor::Yellow, FString::Printf(TEXT("DT %s"), *FString::SanitizeFloat(DeltaTime)));
-
+	DrawDebugLine(GetWorld(), GetActorLocation(), target->GetActorLocation(), FColor::White, false, 0.01f, 0, 1);
 	switch (state)
 	{
 	case UnitState::IDLE:
 	{
+		stateText->SetText(FString("I") + FString::FromInt(bHasTarget) + FString::FromInt(bArrived));
 		Idle();
 		break;
 	}
 	case UnitState::MOVING:
 	{
+		stateText->SetText(FString("M") + FString::FromInt(bHasTarget) + FString::FromInt(bArrived));
 		Moving();
 		break;
 	}
 	case UnitState::AIMING:
 	{
+		stateText->SetText(FString("A") + FString::FromInt(bHasTarget) + FString::FromInt(bArrived));
 		Aiming();
 		break;
 	}
 	case UnitState::SHOOTING:
 	{
+		stateText->SetText(FString("S") + FString::FromInt(bHasTarget) + FString::FromInt(bArrived));
 		Shooting();
 		break;
 	}
-	}
-
+	}	
 	if (fireTimer > 0.f)
 	{
 		fireTimer -= DeltaTime;
@@ -93,7 +100,7 @@ void AUnit::Tick(float DeltaTime)
 	{
 		laserTimer -= DeltaTime;
 		laserBeam->SetBeamSourcePoint(0, GetActorLocation(), 0);
-		laserBeam->SetBeamTargetPoint(0, fireTarget, 0);
+		laserBeam->SetBeamTargetPoint(0, enemy->GetActorLocation(), 0);
 	}
 	else
 	{
@@ -116,7 +123,8 @@ void AUnit::Init(int team)
 		unitMesh->SetMaterial(0, blueUnitMaterial);
 		laserBeam->SetMaterial(0, blueUnitMaterial);
 
-	}
+	}	
+	
 }
 void AUnit::GetTarget()
 {
@@ -131,50 +139,51 @@ void AUnit::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AUnit::Idle()
 {
-	if (bHasTarget && fireTimer <= 0.f)
+	if (bArrived)
 	{
-		state = UnitState::AIMING;
-	}
-	else
-	{
-		if (!bHasTarget)
+		GetTarget(); //TODO:Rename this to avoid confusion with shoot target
+		AController* controller = GetController();
+		unitAIController = Cast<AUnitAIController>(controller);
+		if (unitAIController != nullptr)
 		{
-			GetTarget(); //TODO:Rename this to avoid confusion with shoot target
-			AController* controller = GetController();
-			unitAIController = Cast<AUnitAIController>(controller);
-			if (unitAIController != nullptr)
-			{
-				unitAIController->MoveToActor(target);
-				unitAIController->arrived = false;
-				state = UnitState::MOVING;
-			}
+			unitAIController->owner = this;
+			unitAIController->MoveToActor(target);
+			bArrived = false;
+			state = UnitState::MOVING;
 		}
-		else
-		{
-			if (unitAIController != nullptr)
-			{
-				unitAIController->StopMovement();
-			}
-		}
-	}
+	}	
 }
 
 void AUnit::Moving()
-{
-	if (unitAIController->arrived || Controller->GetPawn()->GetVelocity().Size() < 10)
+{	
+	if (bHasTarget && fireTimer <= 0.f)
 	{
-		state = UnitState::IDLE;		
+		bArrived = true;
+		state = UnitState::AIMING;
+		if (unitAIController != nullptr)
+		{
+			unitAIController->StopMovement();
+		}
+	}	
+}
+
+void AUnit::CheckArrived()
+{
+	if (bArrived || FVector::Distance(GetActorLocation(), target->GetActorLocation()) < 10)
+	{
+		bArrived = true;
+		state = UnitState::IDLE;
+		DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + FVector(0, 0, 1000), FColor::Black, false, 5.f, 0, 1);
 	}
-	Idle();
 }
 
 void AUnit::Aiming()
 {	
-	FRotator newRot = (fireTarget - GetActorLocation()).Rotation();
+	FRotator newRot = (enemy->GetActorLocation() - GetActorLocation()).Rotation();
 	FQuat q = FQuat::FastLerp(GetActorRotation().Quaternion(), newRot.Quaternion(), .1f);
 	newRot = q.Rotator();
 	SetActorRotation(q.Rotator());
-
+	DrawDebugLine(GetWorld(), GetActorLocation(), enemy->GetActorLocation(), FColor::Green, false, 0.05f, 0, 1);
 	float angDist = q.AngularDistance(GetActorRotation().Quaternion());	
 	if (angDist < .01f)
 	{
@@ -192,7 +201,7 @@ void AUnit::Shooting()
 	FHitResult OutHit;
 	FVector ForwardVector = GetActorForwardVector();
 	FVector Start = laserPoint->GetComponentLocation();;
-	FVector End = ((ForwardVector * 1000.f) + Start);
+	FVector End = ((ForwardVector * 10000.f) + Start);
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(this);
 
@@ -223,10 +232,15 @@ void AUnit::Shooting()
 				DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.1f, 0, 1);
 			else
 				DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 0.1f, 0, 1);
+			state = UnitState::IDLE;
+			bHasTarget = false;
 		}
 		fireTimer = fireRate;
 		laserTimer = laserDuration;
-		state = UnitState::IDLE;
+		if (enemy->life <= 0)
+			state = UnitState::IDLE;
+		else
+			state = UnitState::AIMING;
 
 	}	
 	
@@ -261,7 +275,7 @@ void AUnit::CheckTargets()
 			AUnit* unit = (AUnit*)r.Actor.Get();
 			if (unit && unit->unitTeam != unitTeam)
 			{				
-				fireTarget = unit->GetActorLocation();
+				enemy = unit;
 				bHasTarget = true;
 			}
 			break;

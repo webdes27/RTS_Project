@@ -38,6 +38,9 @@ public:
 	AActor* target = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UTextRenderComponent* stateText;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USceneComponent* laserPoint;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -70,6 +73,7 @@ public:
 	AUnitAIController*		unitAIController = nullptr;
 	UnitState				state = UnitState::IDLE;
 	int						unitTeam = 0;
+	bool					bArrived = true;
 
 protected:
 	// Called when the game starts or when spawned
@@ -81,9 +85,10 @@ private:
 	void Moving();
 	void Aiming();
 	void Shooting();
+	void CheckArrived();
 	void CheckTargets();
 
-	FVector				fireTarget;
+	AUnit*				enemy;
 	float				fireTimer = .0f;
 	float				laserTimer = .0f;
 	int					damage = 10;
