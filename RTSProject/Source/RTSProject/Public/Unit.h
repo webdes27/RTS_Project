@@ -18,13 +18,14 @@ class RTSPROJECT_API AUnit : public ACharacter
 	enum class UnitState
 	{
 		IDLE,
-		MOVING,
-		AIMING,
-		SHOOTING,
+		MOVE,
+		CHECK_ENEMIES,
+		AIM,
+		SHOOT,
 		DEAD
 	};
 
-	enum Teams
+	enum class Teams
 	{
 		RED,
 		BLUE
@@ -35,37 +36,34 @@ public:
 	AUnit();
 
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-	AActor* target = nullptr;
+		AActor* target = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UTextRenderComponent* stateText;
+		UTextRenderComponent* stateText;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	USceneComponent* laserPoint;
+		USceneComponent* laserPoint;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	USphereComponent* unitSphere;
+		USphereComponent* unitSphere;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
-	UMaterial* blueUnitMaterial;
+		UMaterial* blueUnitMaterial;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
-	UMaterial* redUnitMaterial;
+		UMaterial* redUnitMaterial;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent* unitMesh;
+		UStaticMeshComponent* unitMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UParticleSystemComponent* laserBeam;
+		UParticleSystemComponent* laserBeam;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-	float fireRate = 2.f;
+		float fireRate = 2.f;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-	float laserDuration = .1f;
-
-	UFUNCTION(BlueprintCallable)
-	void GetTarget();
+		float laserDuration = .1f;
 
 	void Init(int team);
 
@@ -74,6 +72,8 @@ public:
 	UnitState				state = UnitState::IDLE;
 	int						unitTeam = 0;
 	bool					bArrived = true;
+	bool					bAbortedPath = false;
+	AUnit*					attacker = nullptr;
 
 protected:
 	// Called when the game starts or when spawned
@@ -81,19 +81,24 @@ protected:
 
 private:
 
-	void Idle();
-	void Moving();
+	UFUNCTION()
+		void OnCompHit(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit);
+
+	inline bool IsUnderAttack();
+	inline void GetDestination();
+	inline bool HasArrived() const;
+	void CheckEnemies();	
 	void Aiming();
 	void Shooting();
-	void CheckArrived();
-	void CheckTargets();
 
 	AUnit*				enemy;
 	float				fireTimer = .0f;
 	float				laserTimer = .0f;
 	int					damage = 10;
 	int					life = 30;
+	int					framesToDestroy = 50;
 	bool				bHasTarget = false;
+	bool				bUnderAttack = false;
 
 public:	
 	// Called every frame

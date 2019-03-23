@@ -6,9 +6,15 @@
 
 void AUnitAIController::OnMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)
 {	
-	if (owner != nullptr && Result == EPathFollowingResult::Success)
+	if (owner != nullptr && Result == EPathFollowingResult::Success
+		|| Result == EPathFollowingResult::Aborted )		
 	{
 		owner->bArrived = true;
+	}	
+	if (owner != nullptr && Result == EPathFollowingResult::Invalid
+		|| Result == EPathFollowingResult::Blocked)
+	{
+		owner->bAbortedPath = true;
 	}
 }
 

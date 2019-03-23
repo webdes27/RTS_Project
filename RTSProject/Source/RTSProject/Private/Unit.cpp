@@ -18,7 +18,7 @@ AUnit::AUnit()
 	
 	unitMesh = CreateDefaultSubobject<UStaticMeshComponent>("UnitMesh");
 	unitMesh->SetupAttachment(RootComponent);
-
+	
 	laserPoint = CreateDefaultSubobject<USceneComponent>("laserPoint");
 	laserPoint->SetupAttachment(unitMesh);
 
@@ -31,6 +31,7 @@ AUnit::AUnit()
 	AIControllerClass = AUnitAIController::StaticClass();
 	AController* controller = GetController();
 	unitAIController = Cast<AUnitAIController>(controller);
+	
 }
 
 // Called when the game starts or when spawned
@@ -42,72 +43,48 @@ void AUnit::BeginPlay()
 
 	SpawnDefaultController();
 
-	GetTarget();
-
 	bUseControllerRotationYaw = false; //Smooth rotation	
 	GetCharacterMovement()->bUseRVOAvoidance = true;
+	GetCharacterMovement()->AvoidanceWeight = 0.5f;
+		
+	unitMesh->OnComponentHit.AddDynamic(this, &AUnit::OnCompHit);
 
 }
-// Called every frame
-void AUnit::Tick(float DeltaTime)
+// Called to bind functionality to input
+void AUnit::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::Tick(DeltaTime);	
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if (life <= 0)
-	{
-		Destroy();
-		state = UnitState::DEAD;
-	}
-
-	CheckTargets();
-	if (!bHasTarget)
-		CheckArrived();
-	//GEngine->AddOnScreenDebugMessage(-1, 0.2f, FColor::Yellow, FString::Printf(TEXT("DT %s"), *FString::SanitizeFloat(DeltaTime)));
-	DrawDebugLine(GetWorld(), GetActorLocation(), target->GetActorLocation(), FColor::White, false, 0.01f, 0, 1);
-	switch (state)
-	{
-	case UnitState::IDLE:
-	{
-		stateText->SetText(FString("I") + FString::FromInt(bHasTarget) + FString::FromInt(bArrived));
-		Idle();
-		break;
-	}
-	case UnitState::MOVING:
-	{
-		stateText->SetText(FString("M") + FString::FromInt(bHasTarget) + FString::FromInt(bArrived));
-		Moving();
-		break;
-	}
-	case UnitState::AIMING:
-	{
-		stateText->SetText(FString("A") + FString::FromInt(bHasTarget) + FString::FromInt(bArrived));
-		Aiming();
-		break;
-	}
-	case UnitState::SHOOTING:
-	{
-		stateText->SetText(FString("S") + FString::FromInt(bHasTarget) + FString::FromInt(bArrived));
-		Shooting();
-		break;
-	}
-	}	
-	if (fireTimer > 0.f)
-	{
-		fireTimer -= DeltaTime;
-	}
-
-	if (laserTimer > 0.f)
-	{
-		laserTimer -= DeltaTime;
-		laserBeam->SetBeamSourcePoint(0, GetActorLocation(), 0);
-		laserBeam->SetBeamTargetPoint(0, enemy->GetActorLocation(), 0);
-	}
-	else
-	{
-		laserBeam->DeactivateSystem();
-	}
-	
 }
+
+inline bool AUnit::IsUnderAttack() 
+{
+	if (attacker != nullptr)
+	{
+		enemy = attacker;
+		state = UnitState::AIM;
+		bUnderAttack = true;
+	}
+	return bUnderAttack;
+}
+inline void AUnit::GetDestination()
+{
+	target = FoundActors[rand() % FoundActors.Num()];
+	unitAIController = Cast<AUnitAIController>(GetController()); //TODO: Performance issue?
+	if (unitAIController != nullptr)
+	{
+		unitAIController->owner = this;
+		unitAIController->MoveToActor(target);
+		bArrived = false;
+		state = UnitState::MOVE;
+	}
+}
+
+inline bool AUnit::HasArrived() const
+{
+	return bArrived;
+}
+
 
 void AUnit::Init(int team)
 {
@@ -123,73 +100,23 @@ void AUnit::Init(int team)
 		unitMesh->SetMaterial(0, blueUnitMaterial);
 		laserBeam->SetMaterial(0, blueUnitMaterial);
 
-	}	
-	
-}
-void AUnit::GetTarget()
-{
-	target = FoundActors[rand() % FoundActors.Num()];
-}
-// Called to bind functionality to input
-void AUnit::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
-void AUnit::Idle()
-{
-	if (bArrived)
-	{
-		GetTarget(); //TODO:Rename this to avoid confusion with shoot target
-		AController* controller = GetController();
-		unitAIController = Cast<AUnitAIController>(controller);
-		if (unitAIController != nullptr)
-		{
-			unitAIController->owner = this;
-			unitAIController->MoveToActor(target);
-			bArrived = false;
-			state = UnitState::MOVING;
-		}
-	}	
-}
-
-void AUnit::Moving()
-{	
-	if (bHasTarget && fireTimer <= 0.f)
-	{
-		bArrived = true;
-		state = UnitState::AIMING;
-		if (unitAIController != nullptr)
-		{
-			unitAIController->StopMovement();
-		}
-	}	
-}
-
-void AUnit::CheckArrived()
-{
-	if (bArrived || FVector::Distance(GetActorLocation(), target->GetActorLocation()) < 10)
-	{
-		bArrived = true;
-		state = UnitState::IDLE;
-		DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + FVector(0, 0, 1000), FColor::Black, false, 5.f, 0, 1);
 	}
+
 }
 
 void AUnit::Aiming()
-{	
+{
 	FRotator newRot = (enemy->GetActorLocation() - GetActorLocation()).Rotation();
 	FQuat q = FQuat::FastLerp(GetActorRotation().Quaternion(), newRot.Quaternion(), .1f);
 	newRot = q.Rotator();
 	SetActorRotation(q.Rotator());
 	DrawDebugLine(GetWorld(), GetActorLocation(), enemy->GetActorLocation(), FColor::Green, false, 0.05f, 0, 1);
-	float angDist = q.AngularDistance(GetActorRotation().Quaternion());	
-	if (angDist < .01f)
+	float angDist = q.AngularDistance(GetActorRotation().Quaternion());
+	if (angDist < .01f)// TODO: Add Random accuracy
 	{
-		state = UnitState::SHOOTING;
+		state = UnitState::SHOOT;
 	}
-		
+
 	if (unitAIController != nullptr)
 	{
 		unitAIController->StopMovement();
@@ -207,18 +134,24 @@ void AUnit::Shooting()
 
 	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
 
-	if(GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams)) 
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
 	{
 		laserBeam->ActivateSystem(true);
 		laserBeam->SetBeamSourcePoint(0, Start, 0);
-		if(OutHit.bBlockingHit)
+		if (OutHit.bBlockingHit)
 		{
 			laserBeam->SetBeamTargetPoint(0, OutHit.ImpactPoint, 0);
 			if (OutHit.Actor->IsA(AUnit::StaticClass()))
 			{
-				AUnit* unit = (AUnit*)OutHit.Actor.Get();				
+				AUnit* unit = (AUnit*)OutHit.Actor.Get();
 				unit->life -= damage;
-				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, FString::Printf(TEXT("%s : Target %s life %s"), *GetName(), *unit->GetName(), *FString::FromInt(unit->life)));
+				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, FString::Printf(TEXT("%s : Target %s life %s"), *GetName(), *unit->GetName(), *FString::FromInt(unit->life)));
+			}
+			else
+			{
+				state = UnitState::IDLE;
+				bHasTarget = false;
+				return;
 			}
 			if (unitTeam == 0)
 				DrawDebugLine(GetWorld(), Start, OutHit.ImpactPoint, FColor::Red, false, 0.1f, 0, 1);
@@ -237,16 +170,21 @@ void AUnit::Shooting()
 		}
 		fireTimer = fireRate;
 		laserTimer = laserDuration;
-		if (enemy->life <= 0)
-			state = UnitState::IDLE;
+		if (enemy->state == UnitState::DEAD)
+			state = UnitState::CHECK_ENEMIES;
 		else
-			state = UnitState::AIMING;
+			state = UnitState::AIM;
 
-	}	
-	
+	}
+	else
+	{
+		state = UnitState::IDLE;
+		bHasTarget = false;		
+	}
+
 }
 
-void AUnit::CheckTargets()
+void AUnit::CheckEnemies()
 {
 	FCollisionQueryParams query;
 	query.AddIgnoredActor(this);
@@ -274,7 +212,7 @@ void AUnit::CheckTargets()
 		{
 			AUnit* unit = (AUnit*)r.Actor.Get();
 			if (unit && unit->unitTeam != unitTeam)
-			{				
+			{
 				enemy = unit;
 				bHasTarget = true;
 			}
@@ -283,3 +221,99 @@ void AUnit::CheckTargets()
 	}
 }
 
+void AUnit::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	{
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s"), *OtherActor->GetName()));
+		state = UnitState::IDLE;		
+	}
+}
+
+// Called every frame
+void AUnit::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (life <= 0)
+	{
+		state = UnitState::DEAD;
+	}
+
+	if (attacker != nullptr && attacker->state == UnitState::DEAD)
+	{
+		attacker = nullptr;
+		bUnderAttack = false;
+	}
+
+	switch (state)
+	{
+	case UnitState::IDLE:
+		stateText->SetText(FString("I - ") + FString::FromInt(life));
+		if (!IsUnderAttack())
+		{
+			state = UnitState::CHECK_ENEMIES;
+		}
+		break;
+
+	case UnitState::CHECK_ENEMIES:
+		stateText->SetText(FString("C - ") + FString::FromInt(life));
+		enemy = nullptr;
+		CheckEnemies();
+		if (enemy != nullptr)
+		{
+			state = UnitState::AIM;
+		}
+		else
+		{
+			GetDestination();
+			state = UnitState::MOVE;
+		}
+		break;
+
+	case UnitState::MOVE:
+		stateText->SetText(FString("M - ") + FString::FromInt(life));
+		DrawDebugLine(GetWorld(), GetActorLocation(), target->GetActorLocation(), FColor::White, false, 0.05f, 0, 1);
+		enemy = nullptr;
+		CheckEnemies();
+		if (IsUnderAttack() || enemy != nullptr)
+		{
+			state = UnitState::AIM;
+		}
+		else
+		{
+			if (HasArrived() || FVector::Distance(GetActorLocation(), target->GetActorLocation()) < 10)
+			{
+				state = UnitState::IDLE;
+			}
+			else if (bAbortedPath)
+			{
+				DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + FVector(0,0,1000), FColor::Emerald, false, 0.05f, 0, 1);
+				unitAIController->MoveToActor(target);
+				bAbortedPath = false;
+			}
+		}
+		break;
+
+	case UnitState::AIM:
+		stateText->SetText(FString("A - ") + FString::FromInt(life));
+		enemy->attacker = this;
+		Aiming();
+		break;
+
+	case UnitState::SHOOT:
+		stateText->SetText(FString("S - ") + FString::FromInt(life));
+		Shooting();
+		break;
+
+	case UnitState::DEAD:
+		--framesToDestroy;
+		if (framesToDestroy <= 0)
+		{
+			Destroy();
+		}
+		break;
+	default:
+		break;
+	}
+}
+	
