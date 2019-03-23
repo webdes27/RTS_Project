@@ -105,7 +105,7 @@ void AUnit::Init(int team)
 }
 
 void AUnit::Aiming()
-{
+{	
 	FRotator newRot = (enemy->GetActorLocation() - GetActorLocation()).Rotation();
 	FQuat q = FQuat::FastLerp(GetActorRotation().Quaternion(), newRot.Quaternion(), .1f);
 	newRot = q.Rotator();
@@ -114,6 +114,7 @@ void AUnit::Aiming()
 	float angDist = q.AngularDistance(GetActorRotation().Quaternion());
 	if (angDist < .01f)// TODO: Add Random accuracy
 	{
+		//TODO: Use fire cooldown
 		state = UnitState::SHOOT;
 	}
 
