@@ -26,14 +26,18 @@ public:
 		CHECK_ENEMIES,
 		AIM,
 		SHOOT,
+		AIM_BASE,
+		ATTACKING_BASE,
 		DEAD
+	};
+
+	enum class UnitGoal
+	{
+		ATTACK_BASE
 	};
 
 	// Sets default values for this character's properties
 	AUnit();
-
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite)
-		AActor* target = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UTextRenderComponent* stateText;
@@ -67,6 +71,7 @@ public:
 	TArray<AActor*>			FoundActors; //TODO: Remove this | Handle from base
 	AUnitAIController*		unitAIController = nullptr;
 	UnitState				state = UnitState::IDLE;
+	UnitGoal				goal = UnitGoal::ATTACK_BASE;
 	int						unitTeam = 0;
 	bool					bArrived = true;
 	bool					bAbortedPath = false;
@@ -84,11 +89,13 @@ private:
 	inline bool IsUnderAttack();
 	inline void GetDestination();
 	inline bool HasArrived() const;
-	void CheckEnemies();	
-	void Aiming();
+	void CheckEnemies();	//TODO: Move this to homebase to don't perform all this checks per unit each frame
+	void CheckGoal();	//TODO: Move this to homebase to don't perform all this checks per unit each frame
+	void Aiming(AActor* target);
 	void Shooting();
 
-	AUnit*				enemy;
+	AActor*				targetDestination = nullptr;
+	AUnit*				enemy = nullptr;
 	float				fireTimer = .0f;
 	float				laserTimer = .0f;
 	int					damage = 10;
@@ -96,6 +103,7 @@ private:
 	int					framesToDestroy = 50;
 	bool				bHasTarget = false;
 	bool				bUnderAttack = false;
+	bool				bAttackingBase = false;
 
 public:	
 	// Called every frame

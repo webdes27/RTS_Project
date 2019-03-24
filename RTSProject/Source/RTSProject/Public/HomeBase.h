@@ -32,6 +32,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UTextRenderComponent* stateText;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		USceneComponent* spawnPoint;
+
 	TSubclassOf<AUnit>		unit;
 	float					spawnTimer = 0.f;
 	int						team;
@@ -44,9 +47,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	int						life = 5000;
+
 private:
 
 	std::queue<AUnit*>		unitsActive;
-	int						life = 5000;	
+		
 
 };

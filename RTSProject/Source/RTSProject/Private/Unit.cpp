@@ -73,12 +73,12 @@ inline bool AUnit::IsUnderAttack()
 }
 inline void AUnit::GetDestination()
 {
-	target = FoundActors[rand() % FoundActors.Num()];
+	targetDestination = FoundActors[rand() % FoundActors.Num()];
 	unitAIController = Cast<AUnitAIController>(GetController()); //TODO: Performance issue?
 	if (unitAIController != nullptr)
 	{
 		unitAIController->owner = this;
-		unitAIController->MoveToActor(target);
+		unitAIController->MoveToActor(targetDestination);
 		bArrived = false;
 		state = UnitState::MOVE;
 	}
@@ -120,20 +120,25 @@ void AUnit::Init(int team)
 	FoundActors.Remove(ownBase);
 }
 
-void AUnit::Aiming()
+void AUnit::Aiming(AActor* target)
 {	
-	FRotator newRot = (enemy->GetActorLocation() - GetActorLocation()).Rotation();
+	if (target->GetName().Equals(FString("None")))
+	{
+		state = UnitState::IDLE;
+		return;
+	}
+
+	FRotator newRot = (target->GetActorLocation() - GetActorLocation()).Rotation();
 	FQuat q = FQuat::FastLerp(GetActorRotation().Quaternion(), newRot.Quaternion(), .1f);
 	newRot = q.Rotator();
 	SetActorRotation(q.Rotator());
-	DrawDebugLine(GetWorld(), GetActorLocation(), enemy->GetActorLocation(), FColor::Green, false, 0.05f, 0, 1);
+	//DrawDebugLine(GetWorld(), GetActorLocation(), target->GetActorLocation(), FColor::Green, false, 0.05f, 0, 1);
 	float angDist = q.AngularDistance(GetActorRotation().Quaternion());
-	if (angDist < .01f)// TODO: Add Random accuracy
+	if (angDist < .01f + FMath::RandRange(0.f, 0.3f) && fireTimer <= 0.f)// TODO: Add accuracy parameter to unit
 	{
-		//TODO: Use fire cooldown
 		state = UnitState::SHOOT;
 	}
-
+	
 	if (unitAIController != nullptr)
 	{
 		unitAIController->StopMovement();
@@ -156,13 +161,17 @@ void AUnit::Shooting()
 		laserBeam->ActivateSystem(true);
 		laserBeam->SetBeamSourcePoint(0, Start, 0);
 		if (OutHit.bBlockingHit)
-		{
+		{			
 			laserBeam->SetBeamTargetPoint(0, OutHit.ImpactPoint, 0);
 			if (OutHit.Actor->IsA(AUnit::StaticClass()))
 			{
 				AUnit* unit = (AUnit*)OutHit.Actor.Get();
-				unit->life -= damage;
-				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, FString::Printf(TEXT("%s : Target %s life %s"), *GetName(), *unit->GetName(), *FString::FromInt(unit->life)));
+				unit->life -= damage;				
+			}
+			else if (OutHit.Actor->IsA(AHomeBase::StaticClass()))
+			{
+				AHomeBase* enemyBase = (AHomeBase*)OutHit.Actor.Get();
+				enemyBase->life -= damage;
 			}
 			else
 			{
@@ -187,10 +196,17 @@ void AUnit::Shooting()
 		}
 		fireTimer = fireRate;
 		laserTimer = laserDuration;
-		if (enemy->state == UnitState::DEAD)
-			state = UnitState::CHECK_ENEMIES;
-		else
-			state = UnitState::AIM;
+		if (enemy != nullptr)
+		{
+			if (enemy->state == UnitState::DEAD)
+				state = UnitState::CHECK_ENEMIES;
+			else
+				state = UnitState::AIM;
+		}
+		else if (bAttackingBase)
+		{
+			state = UnitState::AIM_BASE;			
+		}
 
 	}
 	else
@@ -225,15 +241,73 @@ void AUnit::CheckEnemies()
 
 	for (FOverlapResult r : overlaps)
 	{
-		if (r.Actor != this && r.Actor->IsA(AUnit::StaticClass()))
+		if (r.Actor != this && r.Actor->IsA(AUnit::StaticClass())) 
 		{
 			AUnit* unit = (AUnit*)r.Actor.Get();
 			if (unit && unit->unitTeam != unitTeam)
 			{
-				enemy = unit;
-				bHasTarget = true;
+				FHitResult OutHit;
+				FVector ForwardVector = GetActorForwardVector();
+				FVector Start = laserPoint->GetComponentLocation();;
+				FVector End = unit->GetActorLocation();
+				FCollisionQueryParams CollisionParams;
+				CollisionParams.AddIgnoredActor(this);
+			
+				if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+				{
+					laserBeam->ActivateSystem(true);
+					laserBeam->SetBeamSourcePoint(0, Start, 0);
+					if (OutHit.bBlockingHit)
+					{
+						laserBeam->SetBeamTargetPoint(0, OutHit.ImpactPoint, 0);
+						if (OutHit.Actor->IsA(AUnit::StaticClass()))
+						{
+							enemy = unit;
+							bHasTarget = true;
+							bAttackingBase = false;
+						}
+					}
+				}
 			}
 			break;
+		}
+	}
+}
+
+void AUnit::CheckGoal()
+{
+	switch (goal)
+	{
+	case UnitGoal::ATTACK_BASE:
+		if (FVector::Dist(GetActorLocation(), targetDestination->GetActorLocation()) < 500) //TODO: this harcoded value stinks!
+		{
+			FHitResult OutHit;
+			FVector ForwardVector = GetActorForwardVector();
+			FVector Start = laserPoint->GetComponentLocation();
+			FVector Direction = targetDestination->GetActorLocation() - laserPoint->GetComponentLocation();
+			Direction.Normalize();
+			FVector End = ((Direction * 10000.f) + Start);
+			FCollisionQueryParams CollisionParams;
+			CollisionParams.AddIgnoredActor(this);
+
+			if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+			{
+				if (OutHit.bBlockingHit)
+				{
+					//DrawDebugLine(GetWorld(), Start, OutHit.ImpactPoint, FColor::Yellow, false, 1, 0, 1);
+					laserBeam->SetBeamTargetPoint(0, OutHit.ImpactPoint, 0);
+					if (OutHit.Actor->IsA(AHomeBase::StaticClass()))
+					{
+						AHomeBase* enemyBase = (AHomeBase*)OutHit.Actor.Get();
+						if (enemyBase->team != unitTeam)
+						{
+							state = UnitState::AIM_BASE;
+							bAttackingBase = true;
+							enemy = nullptr;
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -243,7 +317,8 @@ void AUnit::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s"), *OtherActor->GetName()));
-		state = UnitState::IDLE;		
+		state = UnitState::IDLE;	
+		SetActorLocation(GetActorLocation() + GetActorRightVector());
 	}
 }
 
@@ -254,6 +329,11 @@ void AUnit::Tick(float DeltaTime)
 	if (life <= 0)
 	{
 		state = UnitState::DEAD;
+	}
+
+	if (fireTimer > 0.f)
+	{
+		fireTimer -= DeltaTime;
 	}
 
 	if (attacker != nullptr && attacker->state == UnitState::DEAD)
@@ -289,8 +369,9 @@ void AUnit::Tick(float DeltaTime)
 
 	case UnitState::MOVE:
 		stateText->SetText(FString("M - ") + FString::FromInt(life));
-		DrawDebugLine(GetWorld(), GetActorLocation(), target->GetActorLocation(), FColor::White, false, 0.05f, 0, 1);
+		//DrawDebugLine(GetWorld(), GetActorLocation(), targetDestination->GetActorLocation(), FColor::White, false, 0.05f, 0, 1);
 		enemy = nullptr;
+		CheckGoal();
 		CheckEnemies();
 		if (IsUnderAttack() || enemy != nullptr)
 		{
@@ -298,14 +379,14 @@ void AUnit::Tick(float DeltaTime)
 		}
 		else
 		{
-			if (HasArrived() || FVector::Distance(GetActorLocation(), target->GetActorLocation()) < 10)
+			if (HasArrived() || FVector::Distance(GetActorLocation(), targetDestination->GetActorLocation()) < 10)
 			{
 				state = UnitState::IDLE;
 			}
 			else if (bAbortedPath)
 			{
 				DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + FVector(0,0,1000), FColor::Emerald, false, 0.05f, 0, 1);
-				unitAIController->MoveToActor(target);
+				unitAIController->MoveToActor(targetDestination);
 				bAbortedPath = false;
 			}
 		}
@@ -314,7 +395,21 @@ void AUnit::Tick(float DeltaTime)
 	case UnitState::AIM:
 		stateText->SetText(FString("A - ") + FString::FromInt(life));
 		enemy->attacker = this;
-		Aiming();
+		Aiming(enemy);
+		break;
+
+	case UnitState::AIM_BASE:
+		stateText->SetText(FString("AB - ") + FString::FromInt(life));	
+		CheckEnemies();
+		if (enemy != nullptr)
+		{
+			state = UnitState::AIM;
+		
+		}
+		else
+		{
+			Aiming(targetDestination);
+		}
 		break;
 
 	case UnitState::SHOOT:

@@ -17,6 +17,9 @@ AHomeBase::AHomeBase()
 
 	stateText = CreateDefaultSubobject<UTextRenderComponent>("stateText");
 	stateText->SetupAttachment(baseMesh);
+
+	spawnPoint = CreateDefaultSubobject<USceneComponent>("spawnPoint");
+	spawnPoint->SetupAttachment(baseMesh);
 }
 
 // Called when the game starts or when spawned
@@ -45,7 +48,7 @@ void AHomeBase::Tick(float DeltaTime)
 		UWorld* const World = GetWorld(); // get a reference to the world
 		if (World) {
 			// if world exists
-			AUnit* newUnit = World->SpawnActor<AUnit>(unit, GetActorLocation(), GetActorRotation());
+			AUnit* newUnit = World->SpawnActor<AUnit>(unit, spawnPoint->GetComponentLocation(), GetActorRotation());
 			if (newUnit)
 			{
 				//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Spawn %s"), *teamName));
