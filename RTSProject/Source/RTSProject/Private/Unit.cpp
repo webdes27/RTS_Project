@@ -89,6 +89,15 @@ inline bool AUnit::HasArrived() const
 	return bArrived;
 }
 
+inline void AUnit::ResetShooting()
+{
+	state = UnitState::IDLE;
+	bHasTarget = false;
+	enemy = nullptr;
+	attacker = nullptr;
+	bUnderAttack = false;
+}
+
 
 void AUnit::Init(int team)
 {
@@ -127,14 +136,14 @@ void AUnit::Aiming(AActor* target)
 		state = UnitState::IDLE;
 		return;
 	}
-
-	FRotator newRot = (target->GetActorLocation() - GetActorLocation()).Rotation();
+	FVector aimNoise = target->GetActorRightVector() * FMath::RandRange(-50.f, 50.f); // TODO: Add accuracy parameter to unit
+	FRotator newRot = (target->GetActorLocation() + aimNoise - GetActorLocation()).Rotation();
 	FQuat q = FQuat::FastLerp(GetActorRotation().Quaternion(), newRot.Quaternion(), .1f);
 	newRot = q.Rotator();
 	SetActorRotation(q.Rotator());
 	//DrawDebugLine(GetWorld(), GetActorLocation(), target->GetActorLocation(), FColor::Green, false, 0.05f, 0, 1);
 	float angDist = q.AngularDistance(GetActorRotation().Quaternion());
-	if (angDist < .01f + FMath::RandRange(0.f, 0.3f) && fireTimer <= 0.f)// TODO: Add accuracy parameter to unit
+	if (angDist < .01f && fireTimer <= 0.f)
 	{
 		state = UnitState::SHOOT;
 	}
@@ -162,21 +171,30 @@ void AUnit::Shooting()
 		laserBeam->SetBeamSourcePoint(0, Start, 0);
 		if (OutHit.bBlockingHit)
 		{			
-			laserBeam->SetBeamTargetPoint(0, OutHit.ImpactPoint, 0);
-			if (OutHit.Actor->IsA(AUnit::StaticClass()))
-			{
+			laserBeam->SetBeamTargetPoint(0, OutHit.ImpactPoint, 0); 
+			if (OutHit.Actor->IsA(AUnit::StaticClass())) //Shoot unit
+			{				
 				AUnit* unit = (AUnit*)OutHit.Actor.Get();
-				unit->life -= damage;				
+				if (unit && unit->unitTeam != unitTeam)
+				{
+					unit->life -= damage;
+					if (enemy != nullptr)
+						enemy->attacker = this;
+				}
+				else
+				{
+					ResetShooting();
+					return;
+				}
 			}
-			else if (OutHit.Actor->IsA(AHomeBase::StaticClass()))
+			else if (OutHit.Actor->IsA(AHomeBase::StaticClass())) //Shoot to base
 			{
 				AHomeBase* enemyBase = (AHomeBase*)OutHit.Actor.Get();
 				enemyBase->life -= damage;
 			}
-			else
+			else //Target out of sight
 			{
-				state = UnitState::IDLE;
-				bHasTarget = false;
+				ResetShooting();
 				return;
 			}
 			if (unitTeam == 0)
@@ -191,8 +209,8 @@ void AUnit::Shooting()
 				DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.1f, 0, 1);
 			else
 				DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 0.1f, 0, 1);
-			state = UnitState::IDLE;
-			bHasTarget = false;
+			ResetShooting();
+			return;
 		}
 		fireTimer = fireRate;
 		laserTimer = laserDuration;
@@ -210,9 +228,8 @@ void AUnit::Shooting()
 
 	}
 	else
-	{
-		state = UnitState::IDLE;
-		bHasTarget = false;		
+	{		
+		ResetShooting();
 	}
 
 }
@@ -279,7 +296,7 @@ void AUnit::CheckGoal()
 	switch (goal)
 	{
 	case UnitGoal::ATTACK_BASE:
-		if (FVector::Dist(GetActorLocation(), targetDestination->GetActorLocation()) < 500) //TODO: this harcoded value stinks!
+		if (FVector::Dist(GetActorLocation(), targetDestination->GetActorLocation()) < unitSphere->GetScaledSphereRadius()) //TODO: this harcoded value stinks!
 		{
 			FHitResult OutHit;
 			FVector ForwardVector = GetActorForwardVector();
@@ -394,8 +411,10 @@ void AUnit::Tick(float DeltaTime)
 
 	case UnitState::AIM:
 		stateText->SetText(FString("A - ") + FString::FromInt(life));
-		enemy->attacker = this;
-		Aiming(enemy);
+		if (enemy != nullptr && enemy->state != UnitState::DEAD)
+			Aiming(enemy);
+		else
+			state = UnitState::IDLE;
 		break;
 
 	case UnitState::AIM_BASE:
@@ -403,8 +422,7 @@ void AUnit::Tick(float DeltaTime)
 		CheckEnemies();
 		if (enemy != nullptr)
 		{
-			state = UnitState::AIM;
-		
+			state = UnitState::AIM;		
 		}
 		else
 		{

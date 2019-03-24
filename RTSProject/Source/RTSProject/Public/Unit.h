@@ -89,6 +89,7 @@ private:
 	inline bool IsUnderAttack();
 	inline void GetDestination();
 	inline bool HasArrived() const;
+	inline void ResetShooting();
 	void CheckEnemies();	//TODO: Move this to homebase to don't perform all this checks per unit each frame
 	void CheckGoal();	//TODO: Move this to homebase to don't perform all this checks per unit each frame
 	void Aiming(AActor* target);

@@ -79,6 +79,6 @@ void AHomeBase::Tick(float DeltaTime)
 	}
 
 	stateText->SetText(FString("Units - ") + FString::FromInt(unitsActive.size())
-		+ FString("Life - ") + FString::FromInt(life));
+		+ FString(" | Life - ") + FString::FromInt(life));
 }
 
