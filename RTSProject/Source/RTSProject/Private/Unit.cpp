@@ -332,10 +332,16 @@ void AUnit::CheckGoal()
 void AUnit::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
-	{
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s"), *OtherActor->GetName()));
+	{		
+	//	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s"), *OtherActor->GetName()));
 		state = UnitState::IDLE;	
-		SetActorLocation(GetActorLocation() + GetActorRightVector());
+		float rDist = FVector::Dist(GetActorLocation() + GetActorRightVector(), OtherActor->GetActorLocation());
+		float lDist = FVector::Dist(GetActorLocation() - GetActorRightVector(), OtherActor->GetActorLocation());
+		if (rDist < lDist)
+			SetActorLocation(GetActorLocation() - GetActorRightVector());
+		else
+			SetActorLocation(GetActorLocation() + GetActorRightVector());
+
 	}
 }
 
