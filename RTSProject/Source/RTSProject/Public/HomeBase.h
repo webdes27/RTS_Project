@@ -6,7 +6,11 @@
 #include "GameFramework/Actor.h"
 #include "Engine.h"
 #include "../Public/Unit.h"
+#include <queue>
+
 #include "HomeBase.generated.h"
+
+#define CHECKS_PER_FRAME 5
 
 UCLASS()
 class RTSPROJECT_API AHomeBase : public AActor
@@ -17,18 +21,20 @@ public:
 	// Sets default values for this actor's properties
 	AHomeBase();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent* baseMesh;
+		UStaticMeshComponent* baseMesh;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-	float timeBetweenSpawns = 5.f;
+		float timeBetweenSpawns = 10.f;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-	FString teamName;
+		FString teamName;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UTextRenderComponent* stateText;
 
 	TSubclassOf<AUnit>		unit;
 	float					spawnTimer = 0.f;
-
+	int						team;
 
 protected:
 	// Called when the game starts or when spawned
@@ -38,6 +44,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	
-	
+private:
+
+	std::queue<AUnit*>		unitsActive;
+	int						life = 5000;	
+
 };

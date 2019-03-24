@@ -10,11 +10,15 @@
 #include <unordered_set>
 #include "Unit.generated.h"
 
+#define RED_TEAM 0
+#define BLUE_TEAM 1
+
 UCLASS()
 class RTSPROJECT_API AUnit : public ACharacter
 {
 	GENERATED_BODY()
 
+public:
 	enum class UnitState
 	{
 		IDLE,
@@ -25,13 +29,6 @@ class RTSPROJECT_API AUnit : public ACharacter
 		DEAD
 	};
 
-	enum class Teams
-	{
-		RED,
-		BLUE
-	};
-
-public:
 	// Sets default values for this character's properties
 	AUnit();
 
@@ -67,7 +64,7 @@ public:
 
 	void Init(int team);
 
-	TArray<AActor*>			FoundActors;
+	TArray<AActor*>			FoundActors; //TODO: Remove this | Handle from base
 	AUnitAIController*		unitAIController = nullptr;
 	UnitState				state = UnitState::IDLE;
 	int						unitTeam = 0;

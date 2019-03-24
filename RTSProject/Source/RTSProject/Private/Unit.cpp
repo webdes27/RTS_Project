@@ -1,10 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "../Public/Unit.h"
+#include "../Public/HomeBase.h"
+
 #include "EngineUtils.h"
 #include "Engine/TargetPoint.h"
 #include "Engine/Classes/Kismet/GameplayStatics.h"
 #include "Engine/GameEngine.h"
+
+#include <assert.h>
 
 // Sets default values
 AUnit::AUnit()
@@ -39,8 +43,8 @@ void AUnit::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetPoint::StaticClass(), FoundActors);
-
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHomeBase::StaticClass(), FoundActors);
+	
 	SpawnDefaultController();
 
 	bUseControllerRotationYaw = false; //Smooth rotation	
@@ -90,7 +94,7 @@ void AUnit::Init(int team)
 {
 	unitTeam = team;
 
-	if (unitTeam == 0)
+	if (unitTeam == RED_TEAM)
 	{
 		unitMesh->SetMaterial(0, redUnitMaterial);
 		laserBeam->SetMaterial(0, redUnitMaterial);
@@ -99,9 +103,21 @@ void AUnit::Init(int team)
 	{
 		unitMesh->SetMaterial(0, blueUnitMaterial);
 		laserBeam->SetMaterial(0, blueUnitMaterial);
-
 	}
+	AActor* ownBase = nullptr;
 
+	for (AActor* hbActor : FoundActors)
+	{
+		AHomeBase* hb = (AHomeBase*)hbActor;
+		if (hb->team == unitTeam)
+		{
+			ownBase = hbActor;
+		}
+	}
+	
+	assert(ownBase != nullptr);
+
+	FoundActors.Remove(ownBase);
 }
 
 void AUnit::Aiming()
@@ -162,7 +178,7 @@ void AUnit::Shooting()
 		else
 		{
 			laserBeam->SetBeamTargetPoint(0, End, 0);
-			if (unitTeam == 0)
+			if (unitTeam == RED_TEAM)
 				DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.1f, 0, 1);
 			else
 				DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 0.1f, 0, 1);
