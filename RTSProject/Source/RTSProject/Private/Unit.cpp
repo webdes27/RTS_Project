@@ -99,8 +99,9 @@ inline void AUnit::ResetShooting()
 }
 
 
-void AUnit::Init(int team)
+void AUnit::Init(int team, AHomeBase* base)
 {
+	homeBase = base;
 	unitTeam = team;
 
 	if (unitTeam == RED_TEAM)
@@ -237,11 +238,16 @@ void AUnit::Shooting()
 void AUnit::CheckEnemies()
 {
 	FCollisionQueryParams query;
-	query.AddIgnoredActor(this);
+	for (unsigned i = 0u; i < homeBase->unitsActive.size(); ++i)
+	{
+		query.AddIgnoredActor(homeBase->unitsActive.front());
+		homeBase->unitsActive.push(homeBase->unitsActive.front());
+		homeBase->unitsActive.pop();
+	}
 	auto sphere = FCollisionShape::MakeSphere(unitSphere->GetScaledSphereRadius());
 	FVector start = GetActorLocation();
 	auto traceType = EAsyncTraceType::Multi;
-	FCollisionResponseParams params;
+	FCollisionResponseParams response;
 	TArray<FOverlapResult> overlaps;
 	GetWorld()->OverlapMultiByChannel
 	(
@@ -251,7 +257,7 @@ void AUnit::CheckEnemies()
 		ECollisionChannel::ECC_WorldDynamic,
 		sphere,
 		query,
-		params
+		response
 	);
 
 	bHasTarget = false;

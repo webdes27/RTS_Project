@@ -55,12 +55,12 @@ void AHomeBase::Tick(float DeltaTime)
 				if (teamName.Equals(TEXT("Red")))
 				{
 					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Spawn %s"), *teamName));
-					newUnit->Init(RED_TEAM);
+					newUnit->Init(RED_TEAM, this);
 				}
 				else
 				{
 					GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Spawn %s"), *teamName));
-					newUnit->Init(BLUE_TEAM);
+					newUnit->Init(BLUE_TEAM, this);
 				}
 				unitsActive.push(newUnit);
 			}

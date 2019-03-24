@@ -13,6 +13,8 @@
 #define RED_TEAM 0
 #define BLUE_TEAM 1
 
+class AHomeBase;
+
 UCLASS()
 class RTSPROJECT_API AUnit : public ACharacter
 {
@@ -66,7 +68,7 @@ public:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 		float laserDuration = .1f;
 
-	void Init(int team);
+	void Init(int team, AHomeBase* base);
 
 	TArray<AActor*>			FoundActors; //TODO: Remove this | Handle from base
 	AUnitAIController*		unitAIController = nullptr;
@@ -95,6 +97,7 @@ private:
 	void Aiming(AActor* target);
 	void Shooting();
 
+	AHomeBase*			homeBase = nullptr;
 	AActor*				targetDestination = nullptr;
 	AUnit*				enemy = nullptr;
 	float				fireTimer = .0f;

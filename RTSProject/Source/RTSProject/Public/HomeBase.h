@@ -16,7 +16,7 @@ UCLASS()
 class RTSPROJECT_API AHomeBase : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:	
 	// Sets default values for this actor's properties
 	AHomeBase();
@@ -48,9 +48,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	int						life = 5000;
-
-private:
-
 	std::queue<AUnit*>		unitsActive;
 		
 
