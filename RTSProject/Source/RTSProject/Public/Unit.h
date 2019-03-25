@@ -57,9 +57,6 @@ public:
 		UMaterial* redUnitMaterial;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UStaticMeshComponent* unitMesh;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UParticleSystemComponent* laserBeam;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
@@ -70,6 +67,7 @@ public:
 
 	void Init(int team, AHomeBase* base);
 
+	USkeletalMeshComponent* unitMesh;
 	TArray<AActor*>			FoundActors; //TODO: Remove this | Handle from base
 	AUnitAIController*		unitAIController = nullptr;
 	UnitState				state = UnitState::IDLE;

@@ -19,18 +19,17 @@ AUnit::AUnit()
 	laserBeam = CreateDefaultSubobject<UParticleSystemComponent>("LaserBeam");
 	laserBeam->SetupAttachment(RootComponent);
 	laserBeam->bAutoActivate = false;	
-	
-	unitMesh = CreateDefaultSubobject<UStaticMeshComponent>("UnitMesh");
-	unitMesh->SetupAttachment(RootComponent);
-	
-	laserPoint = CreateDefaultSubobject<USceneComponent>("laserPoint");
-	laserPoint->SetupAttachment(unitMesh);
 
-	stateText = CreateDefaultSubobject<UTextRenderComponent>("stateText");
-	stateText->SetupAttachment(unitMesh);
+	unitMesh = GetMesh();
 
 	unitSphere = CreateDefaultSubobject<USphereComponent>("UnitSphere");
 	unitSphere->SetupAttachment(RootComponent);
+
+	laserPoint = CreateDefaultSubobject<USceneComponent>("laserPoint");
+	laserPoint->SetupAttachment(RootComponent);
+
+	stateText = CreateDefaultSubobject<UTextRenderComponent>("stateText");
+	stateText->SetupAttachment(RootComponent);
 
 	AIControllerClass = AUnitAIController::StaticClass();
 	AController* controller = GetController();
@@ -146,6 +145,8 @@ void AUnit::Aiming(AActor* target)
 	float angDist = q.AngularDistance(GetActorRotation().Quaternion());
 	if (angDist < .01f && fireTimer <= 0.f)
 	{
+		newRot = (target->GetActorLocation() - laserPoint->GetComponentLocation()).Rotation();
+		laserPoint->SetWorldRotation(newRot);
 		state = UnitState::SHOOT;
 	}
 	
@@ -159,8 +160,8 @@ void AUnit::Shooting()
 {
 	FHitResult OutHit;
 	FVector ForwardVector = GetActorForwardVector();
-	FVector Start = laserPoint->GetComponentLocation();;
-	FVector End = ((ForwardVector * 10000.f) + Start);
+	FVector Start = laserPoint->GetComponentLocation();
+	FVector End = ((laserPoint->GetForwardVector() * 10000.f) + Start);
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(this);
 
@@ -168,7 +169,7 @@ void AUnit::Shooting()
 
 	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
 	{
-		laserBeam->ActivateSystem(true);
+		//laserBeam->ActivateSystem(true);
 		laserBeam->SetBeamSourcePoint(0, Start, 0);
 		if (OutHit.bBlockingHit)
 		{			
@@ -199,17 +200,17 @@ void AUnit::Shooting()
 				return;
 			}
 			if (unitTeam == 0)
-				DrawDebugLine(GetWorld(), Start, OutHit.ImpactPoint, FColor::Red, false, 0.1f, 0, 1);
+				DrawDebugLine(GetWorld(), Start, OutHit.ImpactPoint, FColor::Red, false, 0.3f, 0, 10);
 			else
-				DrawDebugLine(GetWorld(), Start, OutHit.ImpactPoint, FColor::Blue, false, 0.1f, 0, 1);
+				DrawDebugLine(GetWorld(), Start, OutHit.ImpactPoint, FColor::Blue, false, 0.3f, 0, 10);
 		}
 		else
 		{
 			laserBeam->SetBeamTargetPoint(0, End, 0);
 			if (unitTeam == RED_TEAM)
-				DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.1f, 0, 1);
+				DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.3f, 0, 10);
 			else
-				DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 0.1f, 0, 1);
+				DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 0.3f, 0, 10);
 			ResetShooting();
 			return;
 		}
@@ -275,7 +276,6 @@ void AUnit::CheckEnemies()
 				FVector End = unit->GetActorLocation();
 				FCollisionQueryParams CollisionParams;
 				CollisionParams.AddIgnoredActor(this);
-			
 				if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
 				{
 					laserBeam->ActivateSystem(true);
@@ -344,9 +344,9 @@ void AUnit::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 		float rDist = FVector::Dist(GetActorLocation() + GetActorRightVector(), OtherActor->GetActorLocation());
 		float lDist = FVector::Dist(GetActorLocation() - GetActorRightVector(), OtherActor->GetActorLocation());
 		if (rDist < lDist)
-			SetActorLocation(GetActorLocation() - GetActorRightVector());
+			SetActorLocation(GetActorLocation() - GetActorRightVector() * 5);
 		else
-			SetActorLocation(GetActorLocation() + GetActorRightVector());
+			SetActorLocation(GetActorLocation() + GetActorRightVector() * 5);
 
 	}
 }
