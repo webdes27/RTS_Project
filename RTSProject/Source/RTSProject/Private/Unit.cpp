@@ -7,23 +7,20 @@
 #include "Engine/TargetPoint.h"
 #include "Engine/Classes/Kismet/GameplayStatics.h"
 #include "Engine/GameEngine.h"
+#include "Perception/PawnSensingComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/BehaviorTree.h"
 
 #include <assert.h>
 
 // Sets default values
 AUnit::AUnit()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
 	laserBeam = CreateDefaultSubobject<UParticleSystemComponent>("LaserBeam");
 	laserBeam->SetupAttachment(RootComponent);
 	laserBeam->bAutoActivate = false;	
 
 	unitMesh = GetMesh();
-
-	unitSphere = CreateDefaultSubobject<USphereComponent>("UnitSphere");
-	unitSphere->SetupAttachment(RootComponent);
 
 	laserPoint = CreateDefaultSubobject<USceneComponent>("laserPoint");
 	laserPoint->SetupAttachment(RootComponent);
@@ -35,6 +32,8 @@ AUnit::AUnit()
 	AController* controller = GetController();
 	unitAIController = Cast<AUnitAIController>(controller);
 	
+	sensingComponent = CreateDefaultSubobject<UPawnSensingComponent>("sensingComponent");
+	sensingComponent->SetPeripheralVisionAngle(90);
 }
 
 // Called when the game starts or when spawned
@@ -49,9 +48,27 @@ void AUnit::BeginPlay()
 	bUseControllerRotationYaw = false; //Smooth rotation	
 	GetCharacterMovement()->bUseRVOAvoidance = true;
 	GetCharacterMovement()->AvoidanceWeight = 0.5f;
-		
-	unitMesh->OnComponentHit.AddDynamic(this, &AUnit::OnCompHit);
 
+	if (sensingComponent)
+	{
+		sensingComponent->OnSeePawn.AddDynamic(this, &AUnit::OnUnitSeen);
+		sensingComponent->bOnlySensePlayers = false;
+		sensingComponent->bEnableSensingUpdates = true;
+		sensingComponent->SetComponentTickInterval(.5f);
+		sensingComponent->SightRadius = 10000;
+	}
+		
+}
+void AUnit::OnUnitSeen(APawn* pawn)
+{
+	DrawDebugLine(GetWorld(), GetActorLocation(), pawn->GetActorLocation(), FColor::Green, false, 0.2f, 0, 1);
+	AUnit* unit = Cast<AUnit>(pawn);
+	AController* controller = GetController();
+	unitAIController = Cast<AUnitAIController>(controller);
+	if (unit && unitAIController)
+	{
+		unitAIController->SetTarget(pawn);
+	}
 }
 // Called to bind functionality to input
 void AUnit::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -60,6 +77,37 @@ void AUnit::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void AUnit::Init(int team, AHomeBase* base)
+{
+	homeBase = base;
+	unitTeam = team;
+
+	if (unitTeam == RED_TEAM)
+	{
+		unitMesh->SetMaterial(0, redUnitMaterial);
+		laserBeam->SetMaterial(0, redUnitMaterial);
+	}
+	else
+	{
+		unitMesh->SetMaterial(0, blueUnitMaterial);
+		laserBeam->SetMaterial(0, blueUnitMaterial);
+	}
+	AActor* ownBase = nullptr;
+
+	for (AActor* hbActor : FoundActors)
+	{
+		AHomeBase* hb = (AHomeBase*)hbActor;
+		if (hb->team == unitTeam)
+		{
+			ownBase = hbActor;
+		}
+	}
+
+	assert(ownBase != nullptr);
+
+	FoundActors.Remove(ownBase);
+}
+/*
 inline bool AUnit::IsUnderAttack() 
 {
 	if (attacker != nullptr)
@@ -98,36 +146,7 @@ inline void AUnit::ResetShooting()
 }
 
 
-void AUnit::Init(int team, AHomeBase* base)
-{
-	homeBase = base;
-	unitTeam = team;
 
-	if (unitTeam == RED_TEAM)
-	{
-		unitMesh->SetMaterial(0, redUnitMaterial);
-		laserBeam->SetMaterial(0, redUnitMaterial);
-	}
-	else
-	{
-		unitMesh->SetMaterial(0, blueUnitMaterial);
-		laserBeam->SetMaterial(0, blueUnitMaterial);
-	}
-	AActor* ownBase = nullptr;
-
-	for (AActor* hbActor : FoundActors)
-	{
-		AHomeBase* hb = (AHomeBase*)hbActor;
-		if (hb->team == unitTeam)
-		{
-			ownBase = hbActor;
-		}
-	}
-	
-	assert(ownBase != nullptr);
-
-	FoundActors.Remove(ownBase);
-}
 
 void AUnit::Aiming(AActor* target)
 {	
@@ -458,4 +477,4 @@ void AUnit::Tick(float DeltaTime)
 		break;
 	}
 }
-	
+	*/

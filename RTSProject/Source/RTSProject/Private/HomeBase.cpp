@@ -41,7 +41,7 @@ void AHomeBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	spawnTimer -= DeltaTime;
+/*	spawnTimer -= DeltaTime;
 
 	if (spawnTimer <= 0.f)
 	{
@@ -80,5 +80,6 @@ void AHomeBase::Tick(float DeltaTime)
 
 	stateText->SetText(FString("Units - ") + FString::FromInt(unitsActive.size())
 		+ FString(" | Life - ") + FString::FromInt(life));
+		*/
 }
 
