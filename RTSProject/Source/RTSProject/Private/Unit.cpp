@@ -61,7 +61,7 @@ void AUnit::BeginPlay()
 }
 void AUnit::OnUnitSeen(APawn* pawn)
 {
-	DrawDebugLine(GetWorld(), GetActorLocation(), pawn->GetActorLocation(), FColor::Green, false, 0.2f, 0, 1);
+	//DrawDebugLine(GetWorld(), GetActorLocation(), pawn->GetActorLocation(), FColor::Green, false, 0.2f, 0, 1);
 	AUnit* unit = Cast<AUnit>(pawn);
 	AController* controller = GetController();
 	unitAIController = Cast<AUnitAIController>(controller);

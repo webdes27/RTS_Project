@@ -29,6 +29,10 @@ public:
 	void SetTarget(APawn* targetPawn);
 
 	FName			target = "Target";	
+	FName			angularDistance = "AngularDistance";
+
+	AUnit*			unit = nullptr;
+	AActor*			enemy = nullptr;
 
 private:
 

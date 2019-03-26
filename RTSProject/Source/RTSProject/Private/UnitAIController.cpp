@@ -15,13 +15,15 @@ AUnitAIController::AUnitAIController()
 void AUnitAIController::SetTarget(APawn* targetPawn)
 {
 	BBComp->SetValueAsObject(target, targetPawn);
+	BBComp->SetValueAsFloat(angularDistance, 1.f);
+	enemy = targetPawn;
 }
 
 void AUnitAIController::Possess(APawn* pawn)
 {
 	Super::Possess(pawn);
 
-	AUnit* unit = Cast<AUnit>(pawn);	
+	unit = Cast<AUnit>(pawn);	
 
 	if (unit)
 	{

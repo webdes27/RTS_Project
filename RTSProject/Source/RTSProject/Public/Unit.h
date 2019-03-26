@@ -45,19 +45,18 @@ public:
 		UParticleSystemComponent*		laserBeam;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-		float							fireRate = 2.f;
+		int								unitTeam;
 
-	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-		float							laserDuration = .1f;
 
 	void Init(int team, AHomeBase* base);
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	USkeletalMeshComponent* unitMesh;
-	TArray<AActor*>			FoundActors; //TODO: Remove this | Handle from base
-	AUnitAIController*		unitAIController = nullptr;
+	USkeletalMeshComponent*			unitMesh;
+	TArray<AActor*>					FoundActors; //TODO: Remove this | Handle from base
+	AUnitAIController*				unitAIController = nullptr;
+	int								life = 50;
 
 protected:
 	// Called when the game starts or when spawned
@@ -68,10 +67,8 @@ private:
 	UFUNCTION()
 	void OnUnitSeen(APawn* pawn);
 
-	AHomeBase*						homeBase = nullptr;
-	int								unitTeam;
-	class UPawnSensingComponent*	sensingComponent;
-
+	AHomeBase*						homeBase = nullptr;	
+	class UPawnSensingComponent*	sensingComponent;	
 
 
 
