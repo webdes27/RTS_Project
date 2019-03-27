@@ -12,6 +12,7 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 
 	AUnitAIController* unitController = Cast<AUnitAIController>(ownerComp.GetOwner());
 	AUnit* unit = unitController->unit;
+	UBlackboardComponent* BB = ownerComp.GetBlackboardComponent();
 	if (unitController->enemy && unit)
 	{
 		FVector aimNoise = unitController->enemy->GetActorRightVector() * FMath::RandRange(-15.f, 15.f); // TODO: Add accuracy parameter to unit
@@ -26,6 +27,8 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 		{
 			FHitResult OutHit;
 			FVector ForwardVector = unit->GetActorForwardVector();
+			unit->laserPoint->SetWorldRotation((unitController->enemy->GetActorLocation()
+				+ aimNoise - unit->laserPoint->GetComponentLocation()).Rotation().Quaternion());
 			FVector Start = unit->laserPoint->GetComponentLocation();
 			FVector End = ((unit->laserPoint->GetForwardVector() * 10000.f) + Start);
 			FCollisionQueryParams CollisionParams;
@@ -43,8 +46,16 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 						AUnit* unitHit = (AUnit*)OutHit.Actor.Get();
 						if (unitHit && unit->unitTeam != unitHit->unitTeam)
 						{
-							unitHit->life -= 10;
+							if (unitHit->TakeDamage(10))
+							{
+								BB->SetValueAsObject(unitController->target, nullptr);
+								return EBTNodeResult::Failed;
+							}
 						}						
+					}
+					else
+					{
+						BB->SetValueAsObject(unitController->target, nullptr);
 					}
 					/*else if (OutHit.Actor->IsA(AHomeBase::StaticClass())) //Shoot to base
 					{
@@ -69,7 +80,7 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 			}
 			return EBTNodeResult::Failed;
 		}
-		UBlackboardComponent* BB = ownerComp.GetBlackboardComponent();
+		
 		BB->SetValueAsFloat(unitController->angularDistance, angDist);
 		return EBTNodeResult::Succeeded;
 	}

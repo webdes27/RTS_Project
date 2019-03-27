@@ -41,8 +41,6 @@ void AUnit::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHomeBase::StaticClass(), FoundActors);
-	
 	SpawnDefaultController();
 
 	bUseControllerRotationYaw = false; //Smooth rotation	
@@ -74,7 +72,6 @@ void AUnit::OnUnitSeen(APawn* pawn)
 void AUnit::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 void AUnit::Init(int team, AHomeBase* base)
@@ -92,21 +89,28 @@ void AUnit::Init(int team, AHomeBase* base)
 		unitMesh->SetMaterial(0, blueUnitMaterial);
 		laserBeam->SetMaterial(0, blueUnitMaterial);
 	}
-	AActor* ownBase = nullptr;
-
-	for (AActor* hbActor : FoundActors)
-	{
-		AHomeBase* hb = (AHomeBase*)hbActor;
-		if (hb->team == unitTeam)
-		{
-			ownBase = hbActor;
-		}
-	}
-
-	assert(ownBase != nullptr);
-
-	FoundActors.Remove(ownBase);
+	
 }
+bool AUnit::TakeDamage(int damage)
+{
+	life -= damage;
+	if (life <= 0)
+	{
+		SetActorLocation(homeBase->GetActorLocation());
+		unitAIController = Cast<AUnitAIController>(GetController());
+		if (unitAIController)
+		{
+			UBlackboardComponent* BB = unitAIController->GetBlackboardComponent();
+			if (BB)
+			{
+				BB->SetValueAsObject(unitAIController->target, nullptr);
+			}
+		}
+		return true;
+	}
+	return false;
+}
+
 /*
 inline bool AUnit::IsUnderAttack() 
 {

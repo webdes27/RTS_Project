@@ -49,14 +49,15 @@ public:
 
 
 	void Init(int team, AHomeBase* base);
+	bool TakeDamage(int damage); //Returns true if dead
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	USkeletalMeshComponent*			unitMesh;
-	TArray<AActor*>					FoundActors; //TODO: Remove this | Handle from base
 	AUnitAIController*				unitAIController = nullptr;
 	int								life = 50;
+	AHomeBase*						homeBase = nullptr;
 
 protected:
 	// Called when the game starts or when spawned
@@ -67,7 +68,6 @@ private:
 	UFUNCTION()
 	void OnUnitSeen(APawn* pawn);
 
-	AHomeBase*						homeBase = nullptr;	
 	class UPawnSensingComponent*	sensingComponent;	
 
 

@@ -14,9 +14,13 @@ AUnitAIController::AUnitAIController()
 
 void AUnitAIController::SetTarget(APawn* targetPawn)
 {
-	BBComp->SetValueAsObject(target, targetPawn);
-	BBComp->SetValueAsFloat(angularDistance, 1.f);
-	enemy = targetPawn;
+	AUnit* seenUnit = Cast<AUnit>(targetPawn);
+	if (seenUnit && seenUnit->unitTeam != unit->unitTeam)
+	{
+		BBComp->SetValueAsObject(target, targetPawn);
+		BBComp->SetValueAsFloat(angularDistance, 1.f);
+		enemy = targetPawn;
+	}
 }
 
 void AUnitAIController::Possess(APawn* pawn)

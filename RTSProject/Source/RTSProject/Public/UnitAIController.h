@@ -28,9 +28,13 @@ public:
 
 	void SetTarget(APawn* targetPawn);
 
+	//BlackBoard Keys
+
 	FName			target = "Target";	
 	FName			angularDistance = "AngularDistance";
+	FName			destination = "Destination";
 
+	//////////////////////////////////////////////////////
 	AUnit*			unit = nullptr;
 	AActor*			enemy = nullptr;
 

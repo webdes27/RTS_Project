@@ -24,7 +24,7 @@ public:
 		UStaticMeshComponent* baseMesh;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-		float timeBetweenSpawns = 10.f;
+		float timeBetweenSpawns = 1.f;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 		FString teamName;
@@ -37,6 +37,7 @@ public:
 
 	TSubclassOf<AUnit>		unit;
 	float					spawnTimer = 0.f;
+	int						maxUnits = 5;
 	int						team;
 
 protected:
@@ -49,6 +50,6 @@ public:
 
 	int						life = 5000;
 	std::queue<AUnit*>		unitsActive;
-		
+	AActor*					enemyBase;
 
 };
