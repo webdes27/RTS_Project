@@ -33,6 +33,7 @@ public:
 	FName			target = "Target";	
 	FName			angularDistance = "AngularDistance";
 	FName			destination = "Destination";
+	FName			underAttack = "UnderAttack";
 
 	//////////////////////////////////////////////////////
 	AUnit*			unit = nullptr;

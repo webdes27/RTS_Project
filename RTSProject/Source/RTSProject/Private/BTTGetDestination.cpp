@@ -6,6 +6,7 @@
 #include "../Public/Unit.h"
 #include "../Public/UnitAIController.h"
 #include "../Public/HomeBase.h"
+#include "../Public/CoverPoint.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
 
@@ -14,7 +15,11 @@ EBTNodeResult::Type UBTTGetDestination::ExecuteTask(UBehaviorTreeComponent &owne
 
 	AUnitAIController* unitController = Cast<AUnitAIController>(ownerComp.GetOwner());
 	AUnit* unit = unitController->unit;
-	
+	if (unit->coverPoint)
+	{
+		unit->coverPoint->user = nullptr;
+		unit->coverPoint = nullptr;
+	}
 	UBlackboardComponent* BB = ownerComp.GetBlackboardComponent();
 	if (unit->homeBase)
 	{

@@ -15,6 +15,7 @@
 
 class AHomeBase;
 class UPawnSensingComponent;
+class ACoverPoint;
 
 UCLASS()
 class RTSPROJECT_API AUnit : public ACharacter
@@ -27,10 +28,7 @@ public:
 	AUnit();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		UBehaviorTree*			BTree;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UTextRenderComponent*			stateText;
+		UBehaviorTree*					BTree;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		USceneComponent*				laserPoint;
@@ -58,6 +56,7 @@ public:
 	AUnitAIController*				unitAIController = nullptr;
 	int								life = 50;
 	AHomeBase*						homeBase = nullptr;
+	ACoverPoint*					coverPoint = nullptr;
 
 protected:
 	// Called when the game starts or when spawned
