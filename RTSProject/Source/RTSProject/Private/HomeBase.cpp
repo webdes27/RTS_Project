@@ -34,6 +34,17 @@ void AHomeBase::BeginPlay()
 	{
 		team = BLUE_TEAM;
 	}
+	TArray<AActor*> FoundActors;
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHomeBase::StaticClass(), FoundActors);
+	
+	for (auto base : FoundActors)
+	{
+		if (base != this)
+		{
+			enemyBase = base;
+		}
+	}
 }
 
 // Called every frame
@@ -46,7 +57,7 @@ void AHomeBase::Tick(float DeltaTime)
 	if (spawnTimer <= 0.f)
 	{
 		UWorld* const World = GetWorld(); // get a reference to the world
-		if (World) {
+		if (World && unitsActive.size() < maxUnits) {
 			// if world exists
 			AUnit* newUnit = World->SpawnActor<AUnit>(unit, spawnPoint->GetComponentLocation(), GetActorRotation());
 			if (newUnit)
@@ -67,7 +78,7 @@ void AHomeBase::Tick(float DeltaTime)
 		}
 		spawnTimer = timeBetweenSpawns;
 	}
-
+	/*
 	for (unsigned i = 0u; i < CHECKS_PER_FRAME && unitsActive.size() > 0u; ++i)
 	{
 		AUnit* unit = unitsActive.front();
@@ -80,5 +91,6 @@ void AHomeBase::Tick(float DeltaTime)
 
 	stateText->SetText(FString("Units - ") + FString::FromInt(unitsActive.size())
 		+ FString(" | Life - ") + FString::FromInt(life));
+		*/
 }
 

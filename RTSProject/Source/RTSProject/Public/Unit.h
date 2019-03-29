@@ -14,6 +14,8 @@
 #define BLUE_TEAM 1
 
 class AHomeBase;
+class UPawnSensingComponent;
+class ACoverPoint;
 
 UCLASS()
 class RTSPROJECT_API AUnit : public ACharacter
@@ -21,61 +23,40 @@ class RTSPROJECT_API AUnit : public ACharacter
 	GENERATED_BODY()
 
 public:
-	enum class UnitState
-	{
-		IDLE,
-		MOVE,
-		CHECK_ENEMIES,
-		AIM,
-		SHOOT,
-		AIM_BASE,
-		ATTACKING_BASE,
-		DEAD
-	};
-
-	enum class UnitGoal
-	{
-		ATTACK_BASE
-	};
-
+	
 	// Sets default values for this character's properties
 	AUnit();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UTextRenderComponent* stateText;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		UBehaviorTree*					BTree;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		USceneComponent* laserPoint;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		USphereComponent* unitSphere;
+		USceneComponent*				laserPoint;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
-		UMaterial* blueUnitMaterial;
-
+		UMaterial*						blueUnitMaterial;
+	
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
-		UMaterial* redUnitMaterial;
+		UMaterial*						redUnitMaterial;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UParticleSystemComponent* laserBeam;
+		UParticleSystemComponent*		laserBeam;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-		float fireRate = 2.f;
+		int								unitTeam;
 
-	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-		float laserDuration = .1f;
 
 	void Init(int team, AHomeBase* base);
+	bool TakeDamage(int damage); //Returns true if dead
 
-	USkeletalMeshComponent* unitMesh;
-	TArray<AActor*>			FoundActors; //TODO: Remove this | Handle from base
-	AUnitAIController*		unitAIController = nullptr;
-	UnitState				state = UnitState::IDLE;
-	UnitGoal				goal = UnitGoal::ATTACK_BASE;
-	int						unitTeam = 0;
-	bool					bArrived = true;
-	bool					bAbortedPath = false;
-	AUnit*					attacker = nullptr;
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	USkeletalMeshComponent*			unitMesh;
+	AUnitAIController*				unitAIController = nullptr;
+	int								life = 50;
+	AHomeBase*						homeBase = nullptr;
+	ACoverPoint*					coverPoint = nullptr;
 
 protected:
 	// Called when the game starts or when spawned
@@ -84,34 +65,11 @@ protected:
 private:
 
 	UFUNCTION()
-		void OnCompHit(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit);
+	void OnUnitSeen(APawn* pawn);
 
-	inline bool IsUnderAttack();
-	inline void GetDestination();
-	inline bool HasArrived() const;
-	inline void ResetShooting();
-	void CheckEnemies();	//TODO: Move this to homebase to don't perform all this checks per unit each frame
-	void CheckGoal();	//TODO: Move this to homebase to don't perform all this checks per unit each frame
-	void Aiming(AActor* target);
-	void Shooting();
+	class UPawnSensingComponent*	sensingComponent;	
 
-	AHomeBase*			homeBase = nullptr;
-	AActor*				targetDestination = nullptr;
-	AUnit*				enemy = nullptr;
-	float				fireTimer = .0f;
-	float				laserTimer = .0f;
-	int					damage = 10;
-	int					life = 30;
-	int					framesToDestroy = 50;
-	bool				bHasTarget = false;
-	bool				bUnderAttack = false;
-	bool				bAttackingBase = false;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
 };
