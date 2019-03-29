@@ -21,8 +21,6 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 		FQuat q = FQuat::FastLerp(unit->GetActorRotation().Quaternion(), newRot.Quaternion(), .1f);
 		unit->SetActorRotation(q.Rotator());
 		float angDist = q.AngularDistance(unit->GetActorRotation().Quaternion());
-		DrawDebugLine(GetWorld(), unit->GetActorLocation(),
-			unitController->enemy->GetActorLocation(), FColor::Green, false, 0.5f, 0, 1);
 		if (angDist < .01f)
 		{
 			FHitResult OutHit;

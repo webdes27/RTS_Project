@@ -2,6 +2,7 @@
 
 #include "../Public/Unit.h"
 #include "../Public/HomeBase.h"
+#include "../Public/CoverPoint.h"
 
 #include "EngineUtils.h"
 #include "Engine/TargetPoint.h"
@@ -24,9 +25,6 @@ AUnit::AUnit()
 
 	laserPoint = CreateDefaultSubobject<USceneComponent>("laserPoint");
 	laserPoint->SetupAttachment(RootComponent);
-
-	stateText = CreateDefaultSubobject<UTextRenderComponent>("stateText");
-	stateText->SetupAttachment(RootComponent);
 
 	AIControllerClass = AUnitAIController::StaticClass();
 	AController* controller = GetController();
@@ -94,18 +92,33 @@ void AUnit::Init(int team, AHomeBase* base)
 bool AUnit::TakeDamage(int damage)
 {
 	life -= damage;
+	unitAIController = Cast<AUnitAIController>(GetController());
+	if (unitAIController)
+	{
+		UBlackboardComponent* BB = unitAIController->BBComp;
+		if (BB)
+		{
+			if (life <= 0)
+			{
+				BB->SetValueAsObject(unitAIController->target, nullptr);
+				BB->SetValueAsBool(unitAIController->underAttack, false);
+				if (coverPoint)
+				{
+					coverPoint->user = nullptr;
+					coverPoint = nullptr;
+				}
+			}
+			else
+			{
+				BB->SetValueAsBool(unitAIController->underAttack, true);
+			}
+		}
+	}
+
 	if (life <= 0)
 	{
 		SetActorLocation(homeBase->GetActorLocation());
-		unitAIController = Cast<AUnitAIController>(GetController());
-		if (unitAIController)
-		{
-			UBlackboardComponent* BB = unitAIController->GetBlackboardComponent();
-			if (BB)
-			{
-				BB->SetValueAsObject(unitAIController->target, nullptr);
-			}
-		}
+		life = 50;
 		return true;
 	}
 	return false;
