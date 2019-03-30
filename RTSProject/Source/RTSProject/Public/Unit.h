@@ -57,6 +57,8 @@ public:
 	int								life = 50;
 	AHomeBase*						homeBase = nullptr;
 	ACoverPoint*					coverPoint = nullptr;
+	int								shootAttempts = 10;
+	int								shootCounter = shootAttempts;
 
 protected:
 	// Called when the game starts or when spawned

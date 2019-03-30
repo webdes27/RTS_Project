@@ -8,21 +8,18 @@
 ACoverPoint::ACoverPoint()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	stateText = CreateDefaultSubobject<UTextRenderComponent>("stateText");
-	stateText->SetupAttachment(RootComponent);
 }
 
 void ACoverPoint::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
 }
 
 void ACoverPoint::Tick(float DeltaTime)
 {
-	stateText->SetText(FString("R ") + FString::FromInt(redOnSight) + FString(" B ") + FString::FromInt(blueOnSight));
+	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + FVector(-10,0,50) * blueOnSight, FColor::Blue, false, 0.3f, 0, 10);
+	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + FVector(10,0,50) * redOnSight, FColor::Red, false, 0.3f, 0, 10);
 	if (user)
 	{
 		DrawDebugLine(GetWorld(), GetActorLocation(), user->GetActorLocation(), FColor::Yellow, false, 0.1f, 0, 1);
@@ -33,7 +30,7 @@ void ACoverPoint::Tick(float DeltaTime)
 	}
 	else
 	{
-		timer = 1.5f;
+		timer = .5f;
 		redOnSight = 0;
 		blueOnSight = 0;
 		TArray<AActor*> units;

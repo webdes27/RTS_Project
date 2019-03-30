@@ -53,7 +53,12 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 					}
 					else
 					{
-						BB->SetValueAsObject(unitController->target, nullptr);
+						--unit->shootCounter;
+						if (unit->shootCounter <= 0)
+						{
+							BB->SetValueAsObject(unitController->target, nullptr);
+							unit->shootCounter = unit->shootAttempts;
+						}
 					}
 					/*else if (OutHit.Actor->IsA(AHomeBase::StaticClass())) //Shoot to base
 					{

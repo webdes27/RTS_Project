@@ -33,26 +33,32 @@ EBTNodeResult::Type UBTTFindCover::ExecuteTask(UBehaviorTreeComponent & ownerCom
 			{
 				if (unit->unitTeam == 0)
 				{
-					if (bestCover->blueOnSight > cp->blueOnSight)
+					if (cp->user == nullptr)
 					{
-						bestCover = cp;
-					}
-					else if (bestCover->blueOnSight == cp->blueOnSight
-						&& FVector::Dist(bestCover->GetActorLocation(), unit->GetActorLocation()) > FVector::Dist(cp->GetActorLocation(), unit->GetActorLocation()))
-					{
-						bestCover = cp;
+						if (bestCover->blueOnSight > cp->blueOnSight)
+						{
+							bestCover = cp;
+						}
+						else if (bestCover->blueOnSight == cp->blueOnSight
+							&& FVector::Dist(bestCover->GetActorLocation(), unit->GetActorLocation()) > FVector::Dist(cp->GetActorLocation(), unit->GetActorLocation()))
+						{
+							bestCover = cp;
+						}
 					}
 				}
 				else
 				{
-					if (bestCover->redOnSight > cp->redOnSight)
+					if (cp->user == nullptr)
 					{
-						bestCover = cp;
-					}
-					else if (bestCover->redOnSight == cp->redOnSight
-						&& FVector::Dist(bestCover->GetActorLocation(), unit->GetActorLocation()) > FVector::Dist(cp->GetActorLocation(), unit->GetActorLocation()))
-					{
-						bestCover = cp;
+						if (bestCover->redOnSight > cp->redOnSight)
+						{
+							bestCover = cp;
+						}
+						else if (bestCover->redOnSight == cp->redOnSight
+							&& FVector::Dist(bestCover->GetActorLocation(), unit->GetActorLocation()) > FVector::Dist(cp->GetActorLocation(), unit->GetActorLocation()))
+						{
+							bestCover = cp;
+						}
 					}
 				}
 			}

@@ -20,8 +20,6 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UTextRenderComponent*			stateText;
 
 	int									redOnSight = 0;
 	int									blueOnSight = 0;

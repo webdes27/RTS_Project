@@ -34,6 +34,7 @@ public:
 	FName			angularDistance = "AngularDistance";
 	FName			destination = "Destination";
 	FName			underAttack = "UnderAttack";
+	FName			isInCover = "IsInCover";
 
 	//////////////////////////////////////////////////////
 	AUnit*			unit = nullptr;
