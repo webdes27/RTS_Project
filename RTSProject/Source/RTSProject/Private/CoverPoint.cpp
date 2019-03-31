@@ -8,6 +8,9 @@
 ACoverPoint::ACoverPoint()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	shootPoint = CreateDefaultSubobject<USceneComponent>("laserPoint");
+	shootPoint->SetupAttachment(RootComponent);
 }
 
 void ACoverPoint::BeginPlay()
@@ -30,6 +33,7 @@ void ACoverPoint::Tick(float DeltaTime)
 	}
 	else
 	{
+		targetsOnSight.clear();
 		timer = .5f;
 		redOnSight = 0;
 		blueOnSight = 0;
@@ -41,7 +45,7 @@ void ACoverPoint::Tick(float DeltaTime)
 			FHitResult OutHit;
 			FVector ForwardVector = GetActorForwardVector();
 			FVector Start = GetActorLocation();
-			FVector End = unit->laserPoint->GetComponentLocation();
+			FVector End = unit->headPoint->GetComponentLocation();
 			FCollisionQueryParams CollisionParams;
 			CollisionParams.AddIgnoredActor(this);
 			if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
@@ -60,6 +64,19 @@ void ACoverPoint::Tick(float DeltaTime)
 						{
 							++blueOnSight;
 						}
+					}
+				}
+			}
+			Start = shootPoint->GetComponentLocation();
+			End = unit->headPoint->GetComponentLocation();
+			if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+			{
+				if (OutHit.bBlockingHit)
+				{
+					if (OutHit.Actor->IsA(AUnit::StaticClass())) //Shoot unit
+					{
+						AUnit* unitHit = (AUnit*)OutHit.Actor.Get();
+						targetsOnSight.push_back(unitHit);
 					}
 				}
 			}

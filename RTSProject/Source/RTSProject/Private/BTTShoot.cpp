@@ -15,30 +15,30 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 	UBlackboardComponent* BB = ownerComp.GetBlackboardComponent();
 	if (unitController->enemy && unit)
 	{
-		FVector aimNoise = unitController->enemy->GetActorRightVector() * FMath::RandRange(-15.f, 15.f); // TODO: Add accuracy parameter to unit
-		FRotator newRot = (unitController->enemy->GetActorLocation() + aimNoise - unit->GetActorLocation()).Rotation();
+		FVector targetPoint = unitController->enemy->GetActorLocation();
+		targetPoint.Z = unit->laserPoint->GetComponentLocation().Z;
+		FVector aimNoise = unitController->enemy->GetActorRightVector() * FMath::RandRange(-1.f, 1.f); // TODO: Add accuracy parameter to unit
+		FRotator newRot = (targetPoint + aimNoise - unit->laserPoint->GetComponentLocation()).Rotation();
 
-		FQuat q = FQuat::FastLerp(unit->GetActorRotation().Quaternion(), newRot.Quaternion(), .1f);
+		FQuat q = FQuat::FastLerp(unit->laserPoint->GetComponentRotation().Quaternion(), newRot.Quaternion(), .3f);
 		unit->SetActorRotation(q.Rotator());
 		float angDist = q.AngularDistance(unit->GetActorRotation().Quaternion());
 		if (angDist < .01f)
 		{
 			FHitResult OutHit;
 			FVector ForwardVector = unit->GetActorForwardVector();
-			unit->laserPoint->SetWorldRotation((unitController->enemy->GetActorLocation()
-				+ aimNoise - unit->laserPoint->GetComponentLocation()).Rotation().Quaternion());
+			/*unit->laserPoint->SetWorldRotation((unitController->enemy->GetActorLocation()
+				+ aimNoise - unit->laserPoint->GetComponentLocation()).Rotation().Quaternion());*/
 			FVector Start = unit->laserPoint->GetComponentLocation();
-			FVector End = ((unit->laserPoint->GetForwardVector() * 10000.f) + Start);
+			//FVector End = ((unit->laserPoint->GetForwardVector() * 10000.f) + Start);
+			FVector End = (ForwardVector * 10000.f) + Start;
 			FCollisionQueryParams CollisionParams;
-			//CollisionParams.AddIgnoredActor(unit);
-
+			//CollisionParams.AddIgnoredActor(unit);			
 			if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
 			{
 				//laserBeam->ActivateSystem(true);
-				//laserBeam->SetBeamSourcePoint(0, Start, 0);
 				if (OutHit.bBlockingHit)
 				{
-					//laserBeam->SetBeamTargetPoint(0, OutHit.ImpactPoint, 0);
 					if (OutHit.Actor->IsA(AUnit::StaticClass())) //Shoot unit
 					{
 						AUnit* unitHit = (AUnit*)OutHit.Actor.Get();
@@ -49,7 +49,9 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 								BB->SetValueAsObject(unitController->target, nullptr);
 								return EBTNodeResult::Failed;
 							}
-						}						
+							unit->ShootEvent(OutHit.ImpactPoint);
+						}	
+						
 					}
 					else
 					{
@@ -59,36 +61,32 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 							BB->SetValueAsObject(unitController->target, nullptr);
 							unit->shootCounter = unit->shootAttempts;
 						}
+						unit->ShootEvent(OutHit.ImpactPoint);
 					}
 					/*else if (OutHit.Actor->IsA(AHomeBase::StaticClass())) //Shoot to base
 					{
 						AHomeBase* enemyBase = (AHomeBase*)OutHit.Actor.Get();
 						enemyBase->life -= damage;
 					}
-					*/
-					if (unit->unitTeam == 0)
-						DrawDebugLine(GetWorld(), Start, OutHit.ImpactPoint, FColor::Red, false, 0.3f, 0, 2);
-					else
-						DrawDebugLine(GetWorld(), Start, OutHit.ImpactPoint, FColor::Blue, false, 0.3f, 0, 2);
+					*/					
+					
 				}				
 			}
 			else
 			{
-				//laserBeam->SetBeamTargetPoint(0, End, 0);
-				if (unit->unitTeam == 0)
-					DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.3f, 0, 2);
-				else
-					DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 0.3f, 0, 2);
-
+				BB->SetValueAsObject(unitController->target, nullptr);
+				unit->laserBeam->SetBeamTargetPoint(0, End, 0);				
+				unit->laserBeam->Activate(true);
 			}
-			return EBTNodeResult::Failed;
+			
+			return EBTNodeResult::Succeeded;
 		}
 		
 		BB->SetValueAsFloat(unitController->angularDistance, angDist);
-		return EBTNodeResult::Succeeded;
+		return EBTNodeResult::Failed;
 	}
 	
-	return EBTNodeResult::Failed;
+	return EBTNodeResult::Succeeded;
 }
 
 void UBTTShoot::OnGameplayTaskActivated(UGameplayTask& Task)

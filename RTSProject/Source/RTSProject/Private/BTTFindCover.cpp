@@ -6,6 +6,7 @@
 #include "CoverPoint.h"
 #include "../Public/Unit.h"
 #include "../Public/UnitAIController.h"
+#include "../Public/Homebase.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
 
@@ -16,48 +17,61 @@ EBTNodeResult::Type UBTTFindCover::ExecuteTask(UBehaviorTreeComponent & ownerCom
 	TArray<AActor*> covers;	
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACoverPoint::StaticClass(), covers);
 	ACoverPoint* bestCover = nullptr;
+	if (unit->coverPoint)
+	{
+		unit->coverPoint->user = nullptr;
+		unit->coverPoint = nullptr;
+	}
 	for (AActor* cover : covers)
 	{
 		ACoverPoint* cp = Cast<ACoverPoint>(cover);
-		if (bestCover == nullptr && cp->user == nullptr)
+		if (std::find(cp->targetsOnSight.begin(), cp->targetsOnSight.end(), unitController->enemy) != cp->targetsOnSight.end())
 		{
-			bestCover = cp;
-		}
-		else
-		{
-			if (bestCover == nullptr)
+			if (bestCover == nullptr && cp->user == nullptr)
 			{
-				bestCover = cp;
+				if (cp != unit->lastCoverPoint)
+				{
+					bestCover = cp;
+				}
 			}
 			else
 			{
-				if (unit->unitTeam == 0)
+				if (bestCover == nullptr && cp != unit->lastCoverPoint)
 				{
-					if (cp->user == nullptr)
-					{
-						if (bestCover->blueOnSight > cp->blueOnSight)
-						{
-							bestCover = cp;
-						}
-						else if (bestCover->blueOnSight == cp->blueOnSight
-							&& FVector::Dist(bestCover->GetActorLocation(), unit->GetActorLocation()) > FVector::Dist(cp->GetActorLocation(), unit->GetActorLocation()))
-						{
-							bestCover = cp;
-						}
-					}
+					bestCover = cp;
 				}
 				else
 				{
-					if (cp->user == nullptr)
+					if (unit->unitTeam == 0)
 					{
-						if (bestCover->redOnSight > cp->redOnSight)
+						if (cp->user == nullptr && cp != unit->lastCoverPoint)
 						{
-							bestCover = cp;
+							if (bestCover->blueOnSight > cp->blueOnSight)
+							{
+								bestCover = cp;
+							}
+							else if (bestCover->blueOnSight == cp->blueOnSight
+								&& cp != unit->lastCoverPoint
+								&& FVector::Dist(bestCover->GetActorLocation(), unit->GetActorLocation()) > FVector::Dist(cp->GetActorLocation(), unit->GetActorLocation()))
+							{
+								bestCover = cp;
+							}
 						}
-						else if (bestCover->redOnSight == cp->redOnSight
-							&& FVector::Dist(bestCover->GetActorLocation(), unit->GetActorLocation()) > FVector::Dist(cp->GetActorLocation(), unit->GetActorLocation()))
+					}
+					else
+					{
+						if (cp->user == nullptr)
 						{
-							bestCover = cp;
+							if (bestCover->redOnSight > cp->redOnSight && cp != unit->lastCoverPoint)
+							{
+								bestCover = cp;
+							}
+							else if (bestCover->redOnSight == cp->redOnSight
+								&& cp != unit->lastCoverPoint
+								&& FVector::Dist(bestCover->GetActorLocation(), unit->GetActorLocation()) > FVector::Dist(cp->GetActorLocation(), unit->GetActorLocation()))
+							{
+								bestCover = cp;
+							}
 						}
 					}
 				}
@@ -69,9 +83,11 @@ EBTNodeResult::Type UBTTFindCover::ExecuteTask(UBehaviorTreeComponent & ownerCom
 	{
 		BB->SetValueAsObject(unitController->destination, bestCover);
 		BB->SetValueAsBool(unitController->underAttack, false);
+		bestCover->user = unit;
+		unit->coverPoint = bestCover;
+		unit->lastCoverPoint = bestCover;
 	}
-	bestCover->user = unit;
-	unit->coverPoint = bestCover;
+	
 	return EBTNodeResult::Succeeded;
 }
 

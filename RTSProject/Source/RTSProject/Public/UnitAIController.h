@@ -27,7 +27,8 @@ public:
 	
 
 	void SetTarget(APawn* targetPawn);
-
+	virtual void Tick(float DeltaTime) override;
+	
 	//BlackBoard Keys
 
 	FName			target = "Target";	

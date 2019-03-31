@@ -17,6 +17,7 @@
 // Sets default values
 AUnit::AUnit()
 {
+
 	laserBeam = CreateDefaultSubobject<UParticleSystemComponent>("LaserBeam");
 	laserBeam->SetupAttachment(RootComponent);
 	laserBeam->bAutoActivate = false;	
@@ -25,6 +26,11 @@ AUnit::AUnit()
 
 	laserPoint = CreateDefaultSubobject<USceneComponent>("laserPoint");
 	laserPoint->SetupAttachment(RootComponent);
+	
+	unitMesh->SetupAttachment(laserPoint);
+
+	headPoint = CreateDefaultSubobject<USceneComponent>("headPoint");
+	headPoint->SetupAttachment(RootComponent);
 
 	AIControllerClass = AUnitAIController::StaticClass();
 	AController* controller = GetController();
@@ -32,6 +38,8 @@ AUnit::AUnit()
 	
 	sensingComponent = CreateDefaultSubobject<UPawnSensingComponent>("sensingComponent");
 	sensingComponent->SetPeripheralVisionAngle(90);
+
+	
 }
 
 // Called when the game starts or when spawned
@@ -72,6 +80,7 @@ void AUnit::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+
 void AUnit::Init(int team, AHomeBase* base)
 {
 	homeBase = base;
@@ -80,12 +89,12 @@ void AUnit::Init(int team, AHomeBase* base)
 	if (unitTeam == RED_TEAM)
 	{
 		unitMesh->SetMaterial(0, redUnitMaterial);
-		laserBeam->SetMaterial(0, redUnitMaterial);
+		laserBeam->SetTemplate(redLaser);
 	}
 	else
 	{
 		unitMesh->SetMaterial(0, blueUnitMaterial);
-		laserBeam->SetMaterial(0, blueUnitMaterial);
+		laserBeam->SetTemplate(blueLaser);
 	}
 	
 }

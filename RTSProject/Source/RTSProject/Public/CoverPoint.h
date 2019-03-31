@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/TargetPoint.h"
+#include <list>
 #include "CoverPoint.generated.h"
 
 class UTextRenderComponent;
@@ -17,6 +18,9 @@ public:
 
 	ACoverPoint();
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		USceneComponent*				shootPoint;
+
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
@@ -24,8 +28,10 @@ public:
 	int									redOnSight = 0;
 	int									blueOnSight = 0;
 	AActor*								user = nullptr;
+	std::list<AActor*>					targetsOnSight;
 
 private:
 
 	float								timer = 0.f;
+
 };

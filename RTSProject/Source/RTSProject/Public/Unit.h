@@ -27,17 +27,29 @@ public:
 	// Sets default values for this character's properties
 	AUnit();
 
+	UFUNCTION(BlueprintImplementableEvent, category = "UnitEvents")
+		void ShootEvent(FVector hitPoint);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		UBehaviorTree*					BTree;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		USceneComponent*				laserPoint;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		USceneComponent*				headPoint;
+
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
 		UMaterial*						blueUnitMaterial;
 	
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
 		UMaterial*						redUnitMaterial;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
+		UParticleSystem*				blueLaser;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
+		UParticleSystem*				redLaser;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UParticleSystemComponent*		laserBeam;
@@ -57,7 +69,8 @@ public:
 	int								life = 50;
 	AHomeBase*						homeBase = nullptr;
 	ACoverPoint*					coverPoint = nullptr;
-	int								shootAttempts = 10;
+	ACoverPoint*					lastCoverPoint = nullptr;
+	int								shootAttempts = 2;
 	int								shootCounter = shootAttempts;
 
 protected:
@@ -70,8 +83,5 @@ private:
 	void OnUnitSeen(APawn* pawn);
 
 	class UPawnSensingComponent*	sensingComponent;	
-
-
-
 	
 };

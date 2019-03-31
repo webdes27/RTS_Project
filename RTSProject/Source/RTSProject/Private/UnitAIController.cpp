@@ -10,6 +10,7 @@ AUnitAIController::AUnitAIController()
 {
 	BBComp = CreateDefaultSubobject<UBlackboardComponent>("BBComp");
 	BTreeComp = CreateDefaultSubobject<UBehaviorTreeComponent>("BTreeComp");
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void AUnitAIController::SetTarget(APawn* targetPawn)
@@ -21,6 +22,11 @@ void AUnitAIController::SetTarget(APawn* targetPawn)
 		BBComp->SetValueAsFloat(angularDistance, 1.f);
 		enemy = targetPawn;
 	}
+}
+
+void AUnitAIController::Tick(float DeltaTime)
+{
+
 }
 
 void AUnitAIController::Possess(APawn* pawn)
