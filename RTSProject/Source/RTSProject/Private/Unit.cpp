@@ -116,23 +116,29 @@ bool AUnit::TakeDamage(int damage)
 					coverPoint->user = nullptr;
 					coverPoint = nullptr;
 				}
+				life = 50;
+				BB->SetValueAsBool(unitAIController->isDead, true);
+				return true;
 			}
 			else
 			{
 				BB->SetValueAsBool(unitAIController->underAttack, true);
 			}
+			
 		}
-	}
-
-	if (life <= 0)
-	{
-		SetActorLocation(homeBase->GetActorLocation());
-		life = 50;
-		return true;
 	}
 	return false;
 }
 
+void AUnit::ResetUnit()
+{
+	SetActorLocation(homeBase->GetActorLocation());
+	UBlackboardComponent* BB = unitAIController->BBComp;
+	if (BB)
+	{
+		BB->SetValueAsBool(unitAIController->isDead, false);
+	}
+}
 /*
 inline bool AUnit::IsUnderAttack() 
 {

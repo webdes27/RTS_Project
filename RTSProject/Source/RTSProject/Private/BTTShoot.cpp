@@ -47,6 +47,7 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 							if (unitHit->TakeDamage(10))
 							{
 								BB->SetValueAsObject(unitController->target, nullptr);
+								((AUnit*)unitController->enemy)->DeadEvent(true);
 								return EBTNodeResult::Failed;
 							}
 							unit->ShootEvent(OutHit.ImpactPoint);

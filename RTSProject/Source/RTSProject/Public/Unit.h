@@ -30,6 +30,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, category = "UnitEvents")
 		void ShootEvent(FVector hitPoint);
 
+	UFUNCTION(BlueprintImplementableEvent, category = "UnitEvents")
+		void DeadEvent(bool isDead);
+
+	UFUNCTION(BlueprintCallable)
+		void ResetUnit();
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		UBehaviorTree*					BTree;
 

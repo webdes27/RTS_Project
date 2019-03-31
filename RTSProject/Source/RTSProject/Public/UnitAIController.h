@@ -36,6 +36,7 @@ public:
 	FName			destination = "Destination";
 	FName			underAttack = "UnderAttack";
 	FName			isInCover = "IsInCover";
+	FName			isDead = "IsDead";
 
 	//////////////////////////////////////////////////////
 	AUnit*			unit = nullptr;
