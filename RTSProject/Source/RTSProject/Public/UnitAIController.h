@@ -10,6 +10,8 @@ class AUnit;
 class UBehaviorTreeComponent;
 class UBlackboardComponent;
 
+#define AI_PATIENCE 5 
+
 UCLASS()
 class RTSPROJECT_API AUnitAIController : public AAIController
 {
@@ -28,6 +30,8 @@ public:
 
 	void SetTarget(APawn* targetPawn);
 	virtual void Tick(float DeltaTime) override;
+
+	bool IsTargetInSight(FVector Start);
 	
 	//BlackBoard Keys
 
@@ -42,6 +46,7 @@ public:
 	AUnit*			unit = nullptr;
 	AActor*			enemy = nullptr;
 
+	int				seekAttempts = AI_PATIENCE;
 private:
 
 	virtual void Possess(APawn* pawn);

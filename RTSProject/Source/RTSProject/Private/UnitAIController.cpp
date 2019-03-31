@@ -29,6 +29,40 @@ void AUnitAIController::Tick(float DeltaTime)
 
 }
 
+bool AUnitAIController::IsTargetInSight(FVector Start)
+{
+	if (enemy)
+	{
+		FHitResult OutHit;
+		FVector End = ((AUnit*)enemy)->headPoint->GetComponentLocation();
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(unit);
+		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+		{
+			if (OutHit.bBlockingHit)
+			{
+				AActor* hitActor = OutHit.Actor.Get();
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Hit %s Enemy %s Result %s"), *hitActor->GetName(), *enemy->GetName(), *FString::FromInt(hitActor == enemy)));
+				if (hitActor == enemy)
+				{
+					seekAttempts = AI_PATIENCE;
+					return true;
+				}
+				else
+				{
+					--seekAttempts;
+					if (seekAttempts <= 0)
+					{
+						seekAttempts = AI_PATIENCE;
+						return false;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
 void AUnitAIController::Possess(APawn* pawn)
 {
 	Super::Possess(pawn);
