@@ -17,7 +17,7 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 	{
 		FVector targetPoint = unitController->enemy->GetActorLocation();
 		targetPoint.Z = unit->laserPoint->GetComponentLocation().Z;
-		FVector aimNoise = unitController->enemy->GetActorRightVector() * FMath::RandRange(-1.f, 1.f); // TODO: Add accuracy parameter to unit
+		FVector aimNoise = unitController->enemy->GetActorRightVector() * FMath::RandRange(-30.f, 30.f); // TODO: Add accuracy parameter to unit
 		FRotator newRot = (targetPoint + aimNoise - unit->laserPoint->GetComponentLocation()).Rotation();
 
 		FQuat q = FQuat::FastLerp(unit->laserPoint->GetComponentRotation().Quaternion(), newRot.Quaternion(), .3f);
@@ -62,7 +62,7 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 							BB->SetValueAsObject(unitController->target, nullptr);
 							unit->shootCounter = unit->shootAttempts;
 						}
-						unit->ShootEvent(OutHit.ImpactPoint);
+						//unit->ShootEvent(OutHit.ImpactPoint);
 					}
 					/*else if (OutHit.Actor->IsA(AHomeBase::StaticClass())) //Shoot to base
 					{
@@ -72,19 +72,8 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 					*/					
 					
 				}				
-			}
-			else
-			{
-				BB->SetValueAsObject(unitController->target, nullptr);
-				unit->laserBeam->SetBeamTargetPoint(0, End, 0);				
-				unit->laserBeam->Activate(true);
-			}
-			
-			return EBTNodeResult::Succeeded;
-		}
-		
-		BB->SetValueAsFloat(unitController->angularDistance, angDist);
-		return EBTNodeResult::Failed;
+			}								
+		}						
 	}
 	
 	return EBTNodeResult::Succeeded;

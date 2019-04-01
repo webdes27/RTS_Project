@@ -37,7 +37,7 @@ AUnit::AUnit()
 	unitAIController = Cast<AUnitAIController>(controller);
 	
 	sensingComponent = CreateDefaultSubobject<UPawnSensingComponent>("sensingComponent");
-	sensingComponent->SetPeripheralVisionAngle(90);
+	sensingComponent->SetPeripheralVisionAngle(180);
 
 	
 }
@@ -50,8 +50,6 @@ void AUnit::BeginPlay()
 	SpawnDefaultController();
 
 	bUseControllerRotationYaw = false; //Smooth rotation	
-	GetCharacterMovement()->bUseRVOAvoidance = true;
-	GetCharacterMovement()->AvoidanceWeight = 0.5f;
 
 	if (sensingComponent)
 	{

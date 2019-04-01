@@ -18,23 +18,29 @@ void AUnitAIController::SetTarget(APawn* targetPawn)
 	AUnit* seenUnit = Cast<AUnit>(targetPawn);
 	if (seenUnit && seenUnit->unitTeam != unit->unitTeam)
 	{
-		BBComp->SetValueAsObject(target, targetPawn);
+		/*BBComp->SetValueAsObject(target, targetPawn);
 		BBComp->SetValueAsFloat(angularDistance, 1.f);
 		enemy = targetPawn;
+		*/
+		targets.Add(targetPawn);
 	}
 }
 
 void AUnitAIController::Tick(float DeltaTime)
 {
-
+	/*if (enemy)
+	{
+		DrawDebugLine(GetWorld(), unit->GetActorLocation(), enemy->GetActorLocation(), FColor::Green, false, 0.2f, 0, 1);
+		DrawDebugLine(GetWorld(), enemy->GetActorLocation(), enemy->GetActorLocation() + FVector(0, 0, 1000), FColor::Green, false, 0.2f, 0, 1);
+	}*/
 }
 
-bool AUnitAIController::IsTargetInSight(FVector Start)
+bool AUnitAIController::IsTargetInSight(FVector Start, APawn* target)
 {
-	if (enemy)
+	if (target)
 	{
 		FHitResult OutHit;
-		FVector End = ((AUnit*)enemy)->headPoint->GetComponentLocation();
+		FVector End = ((AUnit*)target)->headPoint->GetComponentLocation();
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(unit);
 		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
@@ -42,8 +48,7 @@ bool AUnitAIController::IsTargetInSight(FVector Start)
 			if (OutHit.bBlockingHit)
 			{
 				AActor* hitActor = OutHit.Actor.Get();
-				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Hit %s Enemy %s Result %s"), *hitActor->GetName(), *enemy->GetName(), *FString::FromInt(hitActor == enemy)));
-				if (hitActor == enemy)
+				if (hitActor == target)
 				{
 					seekAttempts = AI_PATIENCE;
 					return true;
