@@ -16,7 +16,7 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 	if (unitController->enemy && unit)
 	{
 		FVector targetPoint = unitController->enemy->GetActorLocation();
-		targetPoint.Z = unit->laserPoint->GetComponentLocation().Z;
+		//targetPoint.Z = unit->laserPoint->GetComponentLocation().Z;
 		FVector aimNoise = unitController->enemy->GetActorRightVector() * FMath::RandRange(-30.f, 30.f); // TODO: Add accuracy parameter to unit
 		FRotator newRot = (targetPoint + aimNoise - unit->laserPoint->GetComponentLocation()).Rotation();
 

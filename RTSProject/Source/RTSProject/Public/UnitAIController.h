@@ -26,6 +26,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UBehaviorTreeComponent*			BTreeComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		AActor*							enemy = nullptr;
 	
 
 	void SetTarget(APawn* targetPawn);
@@ -45,8 +48,7 @@ public:
 	//////////////////////////////////////////////////////////////////
 
 	AUnit*							unit = nullptr;
-	AActor*							enemy = nullptr;
-
+	
 	int								seekAttempts = AI_PATIENCE;
 
 	TSet<APawn*>					targets;

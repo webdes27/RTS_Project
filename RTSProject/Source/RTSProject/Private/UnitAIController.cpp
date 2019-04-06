@@ -70,7 +70,7 @@ bool AUnitAIController::IsTargetInSight(FVector Start, APawn* target)
 
 void AUnitAIController::OnPossess(APawn* pawn)
 {
-	Super::Possess(pawn);
+	Super::OnPossess(pawn);
 
 	unit = Cast<AUnit>(pawn);	
 
