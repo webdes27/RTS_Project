@@ -53,5 +53,5 @@ public:
 
 private:
 
-	virtual void Possess(APawn* pawn);
+	void OnPossess(APawn* pawn) override;
 };

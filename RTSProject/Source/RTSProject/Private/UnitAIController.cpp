@@ -68,7 +68,7 @@ bool AUnitAIController::IsTargetInSight(FVector Start, APawn* target)
 	return false;
 }
 
-void AUnitAIController::Possess(APawn* pawn)
+void AUnitAIController::OnPossess(APawn* pawn)
 {
 	Super::Possess(pawn);
 
