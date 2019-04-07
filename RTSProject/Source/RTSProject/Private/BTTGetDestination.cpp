@@ -26,6 +26,7 @@ EBTNodeResult::Type UBTTGetDestination::ExecuteTask(UBehaviorTreeComponent &owne
 		BB->SetValueAsObject(unitController->destination, unit->homeBase->enemyBase);
 	}
 	BB->SetValueAsBool(unitController->isInCover, false);
+	unit->isInCover = false;
 	return EBTNodeResult::Succeeded;
 }
 

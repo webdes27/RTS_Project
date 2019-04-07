@@ -63,6 +63,8 @@ public:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 		int								unitTeam;
 
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+		bool							isInCover = false;
 
 	void Init(int team, AHomeBase* base);
 	bool TakeDamage(int damage); //Returns true if dead
@@ -78,6 +80,7 @@ public:
 	ACoverPoint*					lastCoverPoint = nullptr;
 	int								shootAttempts = 2;
 	int								shootCounter = shootAttempts;
+	
 
 protected:
 	// Called when the game starts or when spawned

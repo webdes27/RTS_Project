@@ -30,7 +30,7 @@ AUnit::AUnit()
 	unitMesh->SetupAttachment(laserPoint);
 
 	headPoint = CreateDefaultSubobject<USceneComponent>("headPoint");
-	headPoint->SetupAttachment(RootComponent);
+	headPoint->SetupAttachment(unitMesh);
 
 	AIControllerClass = AUnitAIController::StaticClass();
 	AController* controller = GetController();

@@ -16,6 +16,7 @@ EBTNodeResult::Type UBTTIsInCover::ExecuteTask(UBehaviorTreeComponent & ownerCom
 	if (BB)
 	{
 		BB->SetValueAsBool(unitController->isInCover, true);
+		unit->isInCover = true;
 	}
 	return EBTNodeResult::Failed;
 

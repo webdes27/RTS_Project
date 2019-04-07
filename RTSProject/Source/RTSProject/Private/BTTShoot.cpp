@@ -15,9 +15,9 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 	UBlackboardComponent* BB = ownerComp.GetBlackboardComponent();
 	if (unitController->enemy && unit)
 	{
-		FVector targetPoint = unitController->enemy->GetActorLocation();
-		//targetPoint.Z = unit->laserPoint->GetComponentLocation().Z;
-		FVector aimNoise = unitController->enemy->GetActorRightVector() * FMath::RandRange(-30.f, 30.f); // TODO: Add accuracy parameter to unit
+		AUnit* enemy = (AUnit*)unitController->enemy;
+		FVector targetPoint = enemy->headPoint->GetComponentLocation();
+		FVector aimNoise = FVector(0,0, FMath::RandRange(-30.f, 30.f)); // TODO: Add accuracy parameter to unit
 		FRotator newRot = (targetPoint + aimNoise - unit->laserPoint->GetComponentLocation()).Rotation();
 
 		FQuat q = FQuat::FastLerp(unit->laserPoint->GetComponentRotation().Quaternion(), newRot.Quaternion(), .3f);
@@ -27,16 +27,13 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 		{
 			FHitResult OutHit;
 			FVector ForwardVector = unit->GetActorForwardVector();
-			/*unit->laserPoint->SetWorldRotation((unitController->enemy->GetActorLocation()
-				+ aimNoise - unit->laserPoint->GetComponentLocation()).Rotation().Quaternion());*/
 			FVector Start = unit->laserPoint->GetComponentLocation();
-			//FVector End = ((unit->laserPoint->GetForwardVector() * 10000.f) + Start);
+		
 			FVector End = (ForwardVector * 10000.f) + Start;
 			FCollisionQueryParams CollisionParams;
-			//CollisionParams.AddIgnoredActor(unit);			
+		
 			if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
 			{
-				//laserBeam->ActivateSystem(true);
 				if (OutHit.bBlockingHit)
 				{
 					if (OutHit.Actor->IsA(AUnit::StaticClass())) //Shoot unit
@@ -46,11 +43,11 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 						{
 							if (unitHit->TakeDamage(10))
 							{
+								unit->ShootEvent(OutHit.ImpactPoint);
 								BB->SetValueAsObject(unitController->target, nullptr);
 								((AUnit*)unitController->enemy)->DeadEvent(true);
 								return EBTNodeResult::Failed;
 							}
-							unit->ShootEvent(OutHit.ImpactPoint);
 						}	
 						
 					}
@@ -59,10 +56,12 @@ EBTNodeResult::Type UBTTShoot::ExecuteTask(UBehaviorTreeComponent &ownerComp, ui
 						--unit->shootCounter;
 						if (unit->shootCounter <= 0)
 						{
+							unit->ShootEvent(OutHit.ImpactPoint);
 							BB->SetValueAsObject(unitController->target, nullptr);
 							unit->shootCounter = unit->shootAttempts;
+							return EBTNodeResult::Failed;
 						}
-						//unit->ShootEvent(OutHit.ImpactPoint);
+						
 					}
 					/*else if (OutHit.Actor->IsA(AHomeBase::StaticClass())) //Shoot to base
 					{
